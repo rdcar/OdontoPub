@@ -249,8 +249,14 @@ else:
     else:
         cols = st.columns(3)
         for idx, nome_p in enumerate(professores_visiveis):
+
+            dados_prof_row = df_prof[df_prof["nome"] == nome_p].iloc[0]
+            categoria_p = dados_prof_row.get('categoria', 'N/A')
+            lattes_id = str(dados_prof_row.get('lattes_id', ''))
+            
             df_p_pub = df_pub[df_pub["professor_responsavel"] == nome_p]
             num_pubs = len(df_p_pub)
+            
             try:
                 anos = pd.to_numeric(df_p_pub['Ano'], errors='coerce').dropna()
                 periodo = f"{int(anos.min())} - {int(anos.max())}" if not anos.empty else "N/A"
@@ -267,17 +273,16 @@ else:
                             foto_path = caminho_img
                             break
                     
-                    # Ajuste de proporção: Foto menor (1) e Texto maior (3)
                     c_img, c_txt = st.columns([1, 3]) 
                     with c_img:
                         st.image(foto_path, width="stretch")
                     with c_txt:
                         st.markdown(f"**{nome_p}**")
+                        # ADICIONADO: Exibição da Categoria
+                        st.write(f"🏷️ {categoria_p}")
                         st.markdown(f"📚 **Publicações:** {num_pubs} | 📅 **Período:** {periodo}")
                     
-                    # Busca o lattes_id para o professor atual do card
-                    lattes_id = str(df_prof[df_prof["nome"] == nome_p].iloc[0].get('lattes_id', ''))
                     if lattes_id:
-                        st.link_button("📖 Ver Currículo Lattes", f"http://lattes.cnpq.br/{lattes_id}", use_container_width=True)
+                        st.link_button("📖 Currículo Lattes", f"http://lattes.cnpq.br/{lattes_id}", width="stretch")
                     
                     st.button(f"📚 Ver Publicações", key=f"btn_{nome_p}", on_click=selecionar_via_card, args=(nome_p,), width="stretch")
