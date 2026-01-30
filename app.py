@@ -148,8 +148,8 @@ if st.session_state['docente_ativo'] != "Todos":
 
 # TELA INICIAL (GALERIA + FILTROS)
 else:
-    st.title("🦷 OdontoPub",)
-    st.subheader("Plataforma de acompanhamento da produção científica odontológica da UFRN")
+    st.title("🦷 OdontoPub")
+    st.subheader("Produção científica do Departamento de Odontologia da UFRN")
     st.info("💡 Esta base é alimentada via PubMed em conjunto com SIGAA/DOD. Publicações sem DOI (Digital Object Identifier) ou não indexadas podem ser consultadas diretamente no Currículo Lattes do docente.")
     
     with st.expander("⚠️ Saiba por que alguns artigos ou DOIs podem estar ausentes"):
@@ -264,11 +264,14 @@ else:
                     # Ajuste de proporção: Foto menor (1) e Texto maior (3)
                     c_img, c_txt = st.columns([1, 3]) 
                     with c_img:
-                        # width="stretch" garante que a foto respeite a coluna pequena
                         st.image(foto_path, width="stretch")
                     with c_txt:
                         st.markdown(f"**{nome_p}**")
-                        # Usando st.write com fontes menores ou emojis para economizar espaço
                         st.markdown(f"📚 **Publicações:** {num_pubs} | 📅 **Período:** {periodo}")
+                    
+                    # Busca o lattes_id para o professor atual do card
+                    lattes_id = str(df_prof[df_prof["nome"] == nome_p].iloc[0].get('lattes_id', ''))
+                    if lattes_id:
+                        st.link_button("📖 Ver Currículo Lattes", f"http://lattes.cnpq.br/{lattes_id}", use_container_width=True)
                     
                     st.button(f"📚 Ver Publicações", key=f"btn_{nome_p}", on_click=selecionar_via_card, args=(nome_p,), width="stretch")
