@@ -26,6 +26,7 @@ def normalizar_texto(texto):
     return n.strip()
 
 def safe_get(url, params=None, data=None):
+    """Executa requisição HTTP com tratamento de erro e retry."""
     for i in range(3):  # Tenta até 3 vezes
         try:
             if data: # Se houver data, usa POST
@@ -40,6 +41,7 @@ def safe_get(url, params=None, data=None):
     return None
 
 def obter_metadados_pubmed(pmids_lista):
+    """Busca metadados XML do PubMed para uma lista de PMIDs."""
     if not pmids_lista: return []
     
     data = {
@@ -96,6 +98,7 @@ def rodar_coleta():
     # 1. Carregar Professores
     df_prof = pd.read_csv("professores.csv")
     pmids_para_coletar = set()
+    vinculos = []
     
     # 2. Coletar PMIDs Manuais (se houver arquivo)
     if os.path.exists("pmids_manuais.txt"):
@@ -104,62 +107,88 @@ def rodar_coleta():
             pmids_para_coletar.update(manuais)
             print(f"✅ {len(manuais)} PMIDs manuais adicionados.")
 
-    # 3. Buscar PMIDs por Variantes de Nome (Automático)
+    # --- ESCOLHA DO MODO DE BUSCA ---
+    print("\nEscolha o modo de busca:")
+    print("1) Variantes (Usa coluna 'variantes' + Normalização Automática)")
+    print("2) Nome Exato (Usa coluna 'nome' SEM normalização - Exact Match)")
+    opcao = input("Digite o número da opção desejada (1 ou 2): ").strip()
+    
+    # 3. Buscar PMIDs
     for index, row in df_prof.iterrows():
-        variantes = str(row['variantes']).split(';')
-        for v in variantes:
-            v = v.strip()
-            if not v: continue
-            print(f"Buscando PubMed para: {v}...")
-            params = {"db": "pubmed", "term": f"{v}[Author]", "retmode": "json", "email": EMAIL}
+        id_atual = row['id_professor']
+        termos_busca = []
+        
+        if opcao == '2':
+            termos_busca = [str(row['nome']).strip()]
+        else:
+            termos_busca = str(row['variantes']).split(';')
+
+        for t in termos_busca:
+            t = t.strip()
+            if not t: continue
+            
+            print(f"Buscando PubMed para: {t}...")
+            # ADICIONADO retmax=1000 para trazer todos os resultados
+            params = {
+                "db": "pubmed", 
+                "term": f"{t}[Author]", 
+                "retmode": "json", 
+                "retmax": 1000, 
+                "email": EMAIL
+            }
+            
             res = safe_get(ESEARCH_URL, params)
             if res:
                 data = res.json()
                 id_list = data.get("esearchresult", {}).get("idlist", [])
+                
+                if opcao == '2' and id_list:
+                    for pmid_encontrado in id_list:
+                        # Criamos o vínculo direto sem filtros adicionais
+                        vinculos.append({
+                            "pmid": pmid_encontrado,
+                            "id_professor": id_atual
+                        })
+                
                 pmids_para_coletar.update(id_list)
             time.sleep(DELAY_SECS)
 
-    # 4. Baixar Metadados de todos os PMIDs únicos encontrados
+    # 4. Baixar Metadados (mantém igual)
     print(f"📥 Baixando metadados de {len(pmids_para_coletar)} artigos únicos...")
     todos_artigos = obter_metadados_pubmed(list(pmids_para_coletar))
 
     # 5. Lógica de Vínculos (Matching)
-    vinculos = []
     publicacoes_final = []
 
     for art in todos_artigos:
-        # Adiciona o artigo à lista de publicações (apenas dados do artigo)
+        # Preenche a tabela de publicações únicas
         publicacoes_final.append({
-            "pmid": art['pmid'],
-            "doi": art['doi'],
-            "titulo": art['titulo'],
-            "revista": art['revista'],
-            "ano": art['ano'],
-            "autores": art['autores_string']
+            "pmid": art['pmid'], "doi": art['doi'], "titulo": art['titulo'],
+            "revista": art['revista'], "ano": art['ano'], "autores": art['autores_string']
         })
 
-        # Verifica quais professores da nossa base estão neste artigo
+        # Processamento de vínculos para PMIDs manuais ou Opção 1
+        # (Se for Opção 2, os vínculos principais já foram injetados no Bloco 3)
         for _, prof in df_prof.iterrows():
-            variantes_prof = [normalizar_texto(v) for v in str(prof['variantes']).split(';')]
-            autores_artigo_norm = [normalizar_texto(a) for a in art['autores_lista']]
-            
-            # Match flexível: qualquer variante do professor contida em qualquer autor do artigo (ou vice-versa)
             match_encontrado = False
-            for v in variantes_prof:
-                if not v: continue
-                for a in autores_artigo_norm:
-                    if not a: continue
-                    # Verifica se v é uma sub-string de a ou vice-versa (ex: "gurgel bc" in "vasconcelos gurgel bc")
-                    if v == a or (len(v) > 5 and (v in a or a in v)):
-                        match_encontrado = True
-                        break
-                if match_encontrado: break
+            
+            if opcao == '1':
+                # Lógica da Opção 1 (Variantes/Normalizada)
+                variantes_prof = [normalizar_texto(v) for v in str(prof['variantes']).split(';')]
+                autores_artigo_norm = [normalizar_texto(a) for a in art['autores_lista']]
+                for v in variantes_prof:
+                    if not v: continue
+                    for a in autores_artigo_norm:
+                        if v == a or (len(v) > 5 and (v in a or a in v)):
+                            match_encontrado = True
+                            break
+                    if match_encontrado: break
 
             if match_encontrado:
-                vinculos.append({
-                    "pmid": art['pmid'],
-                    "id_professor": prof['id_professor']
-                })
+                # Evita duplicar se a busca já vinculou
+                novo_vinculo = {"pmid": art['pmid'], "id_professor": prof['id_professor']}
+                if novo_vinculo not in vinculos:
+                    vinculos.append(novo_vinculo)
 
     # 6. Salvar Arquivos
     pd.DataFrame(publicacoes_final).drop_duplicates(subset="pmid").to_csv("publicacoes.csv", index=False)
