@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import unicodedata
+import os
 
 # 1. Configuração da Página
 st.set_page_config(page_title="OdontoPub - UFRN", layout="wide", page_icon="🦷")
@@ -34,6 +35,10 @@ st.markdown("""
 # --------- CARREGAMENTO ---------
 @st.cache_data
 def load_data():
+    if not os.path.exists("professores.csv") or not os.path.exists("publicacoes.csv") or not os.path.exists("vinculos.csv"):
+        st.error("Arquivos de dados (professores.csv, publicacoes.csv, vinculos.csv) não encontrados.")
+        return pd.DataFrame(), pd.DataFrame()
+
     df_prof = pd.read_csv("professores.csv")
     df_pub = pd.read_csv("publicacoes.csv")
     df_vinculos = pd.read_csv("vinculos.csv")
@@ -43,12 +48,16 @@ def load_data():
     df_completo = df_vinculos.merge(df_pub, on="pmid")
     df_completo = df_completo.merge(df_prof, on="id_professor")
     
-    # Renomeia para manter compatibilidade com seu código anterior
+    # Renomeia para manter compatibilidade
     df_completo = df_completo.rename(columns={"nome": "professor_responsavel", "titulo": "Titulo", "revista": "Revista", "ano": "Ano", "autores": "Autores", "pmid": "PMID", "doi": "DOI"})
     
     return df_prof, df_completo
 
 df_prof, df_pub = load_data()
+
+if df_prof.empty:
+    st.stop()
+
 lista_professores = sorted(df_prof["nome"].unique().tolist())
 
 def normalizar_nome_arquivo(nome):
@@ -56,8 +65,9 @@ def normalizar_nome_arquivo(nome):
     n = n.encode('ascii', 'ignore').decode("utf-8")
     return n.lower().replace(" ", "_")
 
-# --------- MÉTRICAS TOTAIS ---------
-total_artigos = len(df_pub.drop_duplicates(subset=["PMID"]))
+# --------- MÉTRICAS TOTAIS (Cálculo) ---------
+total_artigos_unicos = df_pub["PMID"].nunique()
+
 try:
     anos_total = pd.to_numeric(df_pub['Ano'], errors='coerce').dropna()
     periodo_total = f"{int(anos_total.min())} - {int(anos_total.max())}"
@@ -147,10 +157,10 @@ if st.session_state['docente_ativo'] != "Todos":
                 c1, c2 = st.columns(2)
                 with c1:
                     if pd.notna(row['DOI']) and row['DOI'] != "N/A":
-                        st.link_button("🌐 Link da Editora (DOI)", f"https://dx.doi.org/{row['DOI']}", width="stretch")
+                        st.link_button("🌐 Link da Editora (DOI)", f"https://dx.doi.org/{row['DOI']}", use_container_width=True)
                 with c2:
                     if row['PMID'] and row['PMID'] != "N/A":
-                        st.link_button("📄 Ver no PubMed", f"https://pubmed.ncbi.nlm.nih.gov/{row['PMID']}/", width="stretch")
+                        st.link_button("📄 Ver no PubMed", f"https://pubmed.ncbi.nlm.nih.gov/{row['PMID']}/", use_container_width=True)
 
 # TELA INICIAL (GALERIA + FILTROS)
 else:
@@ -176,8 +186,10 @@ else:
     </div>
     """, unsafe_allow_html=True)
 
+    # CORREÇÃO AQUI: Criamos as colunas ANTES de chamar .metric
     m1, m2 = st.columns(2)
-    m1.metric("Publicações cadastradas", total_artigos)
+    # CORREÇÃO: Usamos a variável correta 'total_artigos_unicos' definida no início
+    m1.metric("Publicações cadastradas", total_artigos_unicos)
     m2.metric("Período de Dados", periodo_total)
 
     st.divider()
@@ -283,6 +295,6 @@ else:
                         st.markdown(f"📚 **Publicações:** {num_pubs} | 📅 **Período:** {periodo}")
                     
                     if lattes_id:
-                        st.link_button("📖 Currículo Lattes", f"http://lattes.cnpq.br/{lattes_id}", width="stretch")
+                        st.link_button("📖 Currículo Lattes", f"http://lattes.cnpq.br/{lattes_id}", use_container_width=True)
                     
-                    st.button(f"📚 Ver Publicações", key=f"btn_{nome_p}", on_click=selecionar_via_card, args=(nome_p,), width="stretch")
+                    st.button(f"📚 Ver Publicações", key=f"btn_{nome_p}", on_click=selecionar_via_card, args=(nome_p,), use_container_width=True)
