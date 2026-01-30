@@ -36,11 +36,17 @@ st.markdown("""
 def load_data():
     df_prof = pd.read_csv("professores.csv")
     df_pub = pd.read_csv("publicacoes.csv")
+    df_vinculos = pd.read_csv("vinculos.csv")
+
+    # Une as publicações com os vínculos e depois com os professores
+    # Isso cria o DataFrame onde um artigo pode aparecer para vários professores
+    df_completo = df_vinculos.merge(df_pub, on="pmid")
+    df_completo = df_completo.merge(df_prof, on="id_professor")
     
-    df_pub['Autores'] = df_pub['Autores'].fillna('')
-    df_pub['Revista'] = df_pub['Revista'].fillna('Informação não disponível')
-    df_pub['Ano'] = df_pub['Ano'].astype(str)
-    return df_prof, df_pub
+    # Renomeia para manter compatibilidade com seu código anterior
+    df_completo = df_completo.rename(columns={"nome": "professor_responsavel", "titulo": "Titulo", "revista": "Revista", "ano": "Ano", "autores": "Autores", "pmid": "PMID", "doi": "DOI"})
+    
+    return df_prof, df_completo
 
 df_prof, df_pub = load_data()
 lista_professores = sorted(df_prof["nome"].unique().tolist())
@@ -183,7 +189,7 @@ else:
         busca_termo = st.text_input("Buscar palavra-chave nos títulos:", key="busca_global").strip()
 
 # --- VISUALIZAÇÃO CONSOLIDADA DE TODOS OS ARTIGOS ---
-    with st.expander("🔎 Clique para listar todas as publicações do departamento"):
+    with st.expander("🔎 Clique para listar todas as publicações"):
         st.markdown("### Todas as Publicações")
         
         # Prepara os dados e remove duplicados
