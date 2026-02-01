@@ -27,8 +27,8 @@ O projeto opera sob uma arquitetura de ETL (*Extract, Transform, Load*) simplifi
 O sistema possui um coletor robusto (`coletor_pubmed.py`) capaz de operar em três modos distintos para maximizar a recuperação de artigos:
 
 * **Busca por Variantes (Match Inteligente):** Busca o professor pelas variações de nome cadastradas e valida se ele consta na lista de autores do XML retornado.
-* **Busca por Nome Oficial:** Vinculação direta baseada no nome principal.
-* **Busca por Query Personalizada (Novidade):** Permite ao operador inserir termos específicos (ex: *"de Almeida ÉO"*) para encontrar autores cujos nomes foram abreviados de forma não padronizada pelo PubMed.
+* **Busca por Nome Oficial:** Vinculação direta baseada no nome principal. Nesse caso, a API se encarrega de pesquisar possíveis variações.
+* **Busca por Query Personalizada:** Permite ao operador inserir termos específicos (ex: *"de Almeida ÉO"* para Érica Janine Dantas da Silveira) para encontrar autores cujos nomes foram abreviados de forma não padronizada pelo PubMed.
 
 ### 2. Cadastro Manual de Obras (`cadastrar_manual.py`)
 
