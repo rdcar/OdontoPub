@@ -1,58 +1,117 @@
-# 🦷 OdontoPub
+# 🦷 OdontoPub - UFRN
 
-O **OdontoPub** é um dashboard interativo desenvolvido em **Python** e **Streamlit** para centralizar, filtrar e visualizar a produção acadêmica dos docentes atualmente lotados no Departamento de Odontologia da Universidade Federal do Rio Grande do Norte (UFRN), utilizando dados minerados diretamente da API do **PubMed (NCBI)**, **Plataforma Lattes** e **SIGAA/DOD**.
+O **OdontoPub** é um dashboard analítico e interativo desenvolvido em **Python** e **Streamlit**, projetado para centralizar, monitorar e visualizar a produção acadêmica do corpo docente do Departamento de Odontologia da Universidade Federal do Rio Grande do Norte (UFRN).
+O projeto resolve o problema da **dispersão de informações**, oferecendo aos alunos e pesquisadores uma interface única para identificar linhas de pesquisa, encontrar orientadores e acompanhar a evolução científica do departamento, sem a necessidade de navegar manualmente por dezenas de currículos individuais.
 
-O objetivo é oferecer aos alunos um centralizador de informações úteis e acessíveis acerca da produção acadêmica e atuação em linhas de pesquisa de seus orientadores. Além disso, oferece um meio de acompanhamento facilitado das publicações científicas do corpo docente atual.
+## 🛠 Arquitetura e Fluxo de Dados
 
-A base de dados é composta tendo como chave todos os **autores** (autor principal ou co-autor). Assim, docentes que ao longo de sua carreira, publicaram artigos sob nome de outras universidades à época de sua produção também serão associados às suas respectivas publicações não sendo limitados, portanto, à produção científica após ingressarem no corpo docente DOD/UFRN.
+O projeto opera sob uma arquitetura de ETL (*Extract, Transform, Load*) simplificada, armazenando os dados em arquivos CSV relacionais para garantir portabilidade e facilidade de manutenção.
 
-A base de dados principal é alimentada pelo PubMed. *Publicações sem registro de DOI ou não indexadas no PubMed* (como anais de eventos locais ou revistas regionais) podem não serem indexadas automaticamente.
-Nesses casos, recomenda-se a consulta direta ao Currículo Lattes do docente através dos links fornecidos pelo **OdontoPub**.
+1. **Entrada (Input):** Lista controlada de docentes (`professores.csv`) contendo nomes, variações bibliográficas e IDs.
+2. **Extração (Mining):**
+* **Via API (PubMed):** Script automatizado que busca artigos indexados.
+* **Via Input Manual:** Script para inserção de obras não indexadas (revistas locais, anais).
 
----
 
-![screenshot.png](screenshot.png)
+3. **Armazenamento (Database):**
+* `publicacoes.csv`: Metadados dos artigos (Título, DOI, Revista, Ano, Autores).
+* `vinculos.csv`: Tabela de junção que conecta artigos (PMID) aos professores (ID).
 
-## Funcionalidades
-- **Busca Automatizada**: Script de coleta que utiliza IDs e nomes para buscar publicações via Entrez/E-utils.
-- **Vínculo Robusto**: Diferente de buscas genéricas, os artigos são vinculados diretamente ao docente responsável.
-- **Filtros Avançados**: Filtragem por nome do professor, ano de publicação e palavras-chave nos títulos.
-- **Acesso Direto**: Links integrados para DOI (Editora), PubMed e Currículo Lattes de cada docente.
-- **Exportação**: Opção para baixar os dados filtrados em formato CSV.
 
-## Tecnologias Utilizadas
-- [Python 3.x](https://www.python.org/)
-- [Streamlit](https://streamlit.io/) (Interface Web)
-- [Pandas](https://pandas.pydata.org/) (Manipulação de Dados)
-- [Requests](https://requests.readthedocs.io/) (Conexão com API NCBI)
-- [Unicodedata](https://docs.python.org/3/library/unicodedata.html) (Normalização de strings)
+4. **Visualização (Frontend):** Aplicação Web (`app.py`) que consome os CSVs e gera gráficos e perfis em tempo real.
 
-## Estrutura do Projeto
-- `app.py`: Código principal da aplicação Streamlit.
-- `coletor_pubmed.py`: Script para minerar dados do PubMed.
-- `professores.csv`: Base de dados dos docentes (Nomes e IDs Lattes).
-- `publicacoes.csv`: Base de dados gerada com os metadados dos artigos.
-- `requirements.txt`: Lista de dependências para o deploy.
+## 🚀 Funcionalidades
 
-## Como Executar
+### 1. Coleta Híbrida de Dados
 
-### 1. Pré-requisitos
-Certifique-se de ter o Python instalado e as bibliotecas necessárias:
+O sistema possui um coletor robusto (`coletor_pubmed.py`) capaz de operar em três modos distintos para maximizar a recuperação de artigos:
+
+* **Busca por Variantes (Match Inteligente):** Busca o professor pelas variações de nome cadastradas e valida se ele consta na lista de autores do XML retornado.
+* **Busca por Nome Oficial:** Vinculação direta baseada no nome principal.
+* **Busca por Query Personalizada (Novidade):** Permite ao operador inserir termos específicos (ex: *"de Almeida ÉO"*) para encontrar autores cujos nomes foram abreviados de forma não padronizada pelo PubMed.
+
+### 2. Cadastro Manual de Obras (`cadastrar_manual.py`)
+
+Para contornar a ausência de indexação de revistas locais ou anais de congressos no PubMed, foi criado um script dedicado que:
+
+* Gera IDs únicos internos (`MAN_YYYYMM...`) para evitar colisão com o PubMed.
+* Permite popular a base com artigos relevantes que não possuem DOI ou PMID.
+
+### 3. Dashboard Interativo (`app.py`)
+
+* **Perfis Individuais:** Exibe foto, categoria, link para o Lattes e lista cronológica de publicações.
+* **Filtros Dinâmicos:** Filtragem por ano, nome do docente ou palavras-chave no título.
+* **Indicadores:** Contagem total de publicações e período de atividade.
+
+## ⚠️ Limitações Técnicas e Metodológicas
+
+A arquitetura atual foi desenhada para contornar restrições importantes na obtenção de dados acadêmicos no Brasil:
+
+### 1. A Questão do Lattes (ScriptLattes/XML)
+
+Antigamente, ferramentas como o `scriptLattes` permitiam a extração massiva de dados diretamente da Plataforma Lattes. Atualmente, devido à implementação de **CAPTCHAs agressivos e Firewalls (WAF)** pelo CNPq, a extração automatizada direta do Lattes tornou-se inviável para projetos abertos.
+
+* **Impacto:** O projeto não consegue "baixar" o currículo do professor automaticamente.
+* **Solução:** Utilizamos o **PubMed** como fonte primária de verdade para artigos internacionais e o cadastro manual para complementar a produção nacional/regional.
+
+### 2. O Desafio dos Homônimos
+
+Diferente do Lattes, que usa um ID único (CPF/LattesID), a busca via API do PubMed baseia-se em **strings de texto (nomes de autores)**.
+
+* **Risco:** Um professor chamado "José Silva" pode ter sua produção misturada com um homônimo de outra instituição ou área (ex: Física).
+* **Mitigação:** O algoritmo de "Match Inteligente" tenta cruzar variantes, mas a validação humana ou o uso da **Busca por Query Personalizada** (implementada neste projeto) são essenciais para garantir a integridade dos dados.
+
+## 💻 Como Executar o Projeto
+
+### Pré-requisitos
+
+* Python 3.8+
+* Bibliotecas listadas em `requirements.txt`
+
+### Passo 1: Instalação
+
+Clone o repositório e instale as dependências:
+
 ```bash
 pip install -r requirements.txt
+
 ```
 
-## 2. Coleta de Dados
-Para atualizar a base de publicações, execute o coletor:
+### Passo 2: Atualizar a Base de Dados
+
+Você tem duas opções para alimentar o sistema:
+
+**Opção A: Coleta Automática (PubMed)**
+Execute o script principal e siga as instruções do menu (escolha entre busca por variantes, nome exato ou query manual):
 
 ```bash
 python coletor_pubmed.py
+
 ```
-## 3. Executando o Dashboard
-Para abrir a interface no seu navegador:
+
+*O script fará o update dos arquivos `publicacoes.csv` e `vinculos.csv` sem apagar registros anteriores.*
+
+**Opção B: Cadastro Manual**
+Para inserir um artigo que não está no PubMed:
+
+```bash
+python cadastrar_manual.py
+
+```
+
+### Passo 3: Iniciar o Dashboard
+
+Para visualizar os dados no navegador:
 
 ```bash
 streamlit run app.py
-```
 
-Desenvolvido para fins de gestão acadêmica e transparência científica.
+```
+## 📂 Estrutura de Arquivos
+
+* `app.py`: Interface do usuário (Streamlit).
+* `coletor_pubmed.py`: Motor de busca na API do NCBI.
+* `cadastrar_manual.py`: Ferramenta de inserção de dados offline.
+* `professores.csv`: Cadastro mestre dos docentes.
+* `publicacoes.csv`: Banco de dados de artigos.
+* `vinculos.csv`: Tabela relacional (N:N) entre publicações e autores.
