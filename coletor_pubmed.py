@@ -11,7 +11,7 @@ EFETCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 EMAIL = "renatodc89@gmail.com"
 DELAY_SECS = 1.0  # Delay respeitoso para a API
 
-# ----------------- FUNÇÕES DE APOIO -----------------
+# ----------------- FUNÇÕES DE APOIO -----------git------
 
 def normalizar_texto(texto):
     """Normalize text: lowercase, remove accents, and common particles."""
