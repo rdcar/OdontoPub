@@ -41,6 +41,9 @@ def load_data():
 
     df_prof = pd.read_csv("professores.csv")
     df_pub = pd.read_csv("publicacoes.csv")
+    if 'abstract' not in df_pub.columns:
+        df_pub['abstract'] = 'N/A' # Garante retrocompatibilidade
+
     df_vinculos = pd.read_csv("vinculos.csv")
 
     # Une as publicações com os vínculos e depois com os professores
@@ -49,7 +52,7 @@ def load_data():
     df_completo = df_completo.merge(df_prof, on="id_professor")
     
     # Renomeia para manter compatibilidade
-    df_completo = df_completo.rename(columns={"nome": "professor_responsavel", "titulo": "Titulo", "revista": "Revista", "ano": "Ano", "autores": "Autores", "pmid": "PMID", "doi": "DOI"})
+    df_completo = df_completo.rename(columns={"nome": "professor_responsavel", "titulo": "Titulo", "revista": "Revista", "ano": "Ano", "autores": "Autores", "pmid": "PMID", "doi": "DOI", "abstract": "Abstract"})
     
     return df_prof, df_completo
 
@@ -153,6 +156,10 @@ if st.session_state['docente_ativo'] != "Todos":
                 st.markdown(f"#### {row['Titulo']}")
                 st.markdown(f"📖 **Revista:** {row['Revista']}")
                 st.write(f"🧑‍🏫 **Autores:** {row['Autores']}")
+
+                if pd.notna(row.get('Abstract')) and str(row['Abstract']) != "N/A" and str(row['Abstract']) != "nan":
+                    with st.expander("📄 Ver Resumo/Abstract"):
+                        st.write(row['Abstract'])
                 
                 c1, c2 = st.columns(2)
                 with c1:
@@ -236,6 +243,10 @@ else:
                 st.markdown(f"👤 **Docente no Sistema:** {row['professor_responsavel']}")
                 st.markdown(f"📖 **Revista:** {row['Revista']}")
                 st.write(f"🧑‍🏫 **Autores:** {row['Autores']}")
+
+                if pd.notna(row.get('Abstract')) and str(row['Abstract']) != "N/A" and str(row['Abstract']) != "nan":
+                    with st.expander("📄 Ver Resumo/Abstract"):
+                        st.write(row['Abstract'])
                 
                 c1, c2 = st.columns(2)
                 with c1:

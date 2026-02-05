@@ -4,6 +4,7 @@ import time
 import pandas as pd
 import os
 import unicodedata
+import datetime
 
 # ----------------- CONFIGURAÇÕES -----------------
 ESEARCH_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
@@ -83,6 +84,20 @@ def obter_metadados_pubmed(pmids_lista):
                     init = a.findtext("Initials") or ""
                     autores_nomes.append(f"{last} {init}".strip())
 
+                # Abstract
+                abstract_texts = []
+                # Use iter("AbstractText") to find all nodes, and itertext() to get full content (including <b>, <i> etc)
+                abstract_node = article.find(".//Abstract")
+                if abstract_node is not None:
+                    for abs_text in abstract_node.iter("AbstractText"):
+                        full_text = "".join(abs_text.itertext()).strip()
+                        label = abs_text.get("Label")
+                        if label:
+                            full_text = f"{label}: {full_text}"
+                        abstract_texts.append(full_text)
+                
+                abstract = " ".join(abstract_texts).strip() if abstract_texts else "N/A"
+
                 todos_artigos.append({
                     "pmid": pmid,
                     "doi": doi,
@@ -90,7 +105,8 @@ def obter_metadados_pubmed(pmids_lista):
                     "revista": revista,
                     "ano": year,
                     "autores_string": "; ".join(autores_nomes),
-                    "autores_lista": autores_nomes
+                    "autores_lista": autores_nomes,
+                    "abstract": abstract
                 })
         except ET.ParseError:
             print("Erro ao processar XML deste lote.")
@@ -126,12 +142,56 @@ def rodar_coleta():
     print("1) Variantes (Busca 'variantes' + Match Inteligente)")
     print("2) Nome Oficial (Busca 'nome' exato + Vínculo Direto)")
     print("3) Busca Manual (Você digita o termo para um professor específico)")
+    print("4) Cadastro Manual de Artigo (Você digita todos os dados)")
     
-    opcao = input("Digite o número da opção (1, 2 ou 3): ").strip()
+    opcao = input("Digite o número da opção (1, 2, 3 ou 4): ").strip()
     
     professores_alvo = [] # Tuplas (id, nome, termos_de_busca)
 
-    if opcao == '3':
+    professores_alvo = [] # Tuplas (id, nome, termos_de_busca)
+    lista_publicacoes = [] # Inicializa lista de publicações
+
+    if opcao == '4':
+        # --- CADASTRO MANUAL INTEGRADO ---
+        print("\n--- CADASTRO MANUAL DE ARTIGO ---")
+        print("Selecione o professor:")
+        prof_list = df_prof[['id_professor', 'nome']].values.tolist()
+        for i, (pid, pnome) in enumerate(prof_list):
+            print(f"{i}) {pnome}")
+        
+        try:
+             idx = int(input("Número do professor: "))
+             prof_selecionado = df_prof.iloc[idx]
+             id_professor = prof_selecionado['id_professor']
+             nome_professor = prof_selecionado['nome']
+        except:
+             print("❌ Seleção inválida.")
+             return
+
+        print(f"\nCadastrando para: {nome_professor}")
+        titulo = input("Título do Artigo: ").strip()
+        revista = input("Nome da Revista/Evento: ").strip()
+        ano = input("Ano (ex: 2023): ").strip()
+        doi = input("DOI (se não tiver, aperte Enter): ").strip() or "N/A"
+        autores = input("Autores (separados por ponto e vírgula): ").strip()
+        abstract = input("Abstract (se não tiver, aperte Enter): ").strip() or "N/A"
+
+        pmid_manual = f"MAN_{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+        
+        lista_publicacoes.append({
+            "pmid": pmid_manual, "doi": doi, "titulo": titulo,
+            "revista": revista, "ano": ano, "autores": autores, "abstract": abstract
+        })
+        
+        novos_vinculos.append({
+            "pmid": pmid_manual,
+            "id_professor": id_professor
+        })
+        
+        # Garante que não entre nas buscas automáticas
+        pmids_para_coletar = []
+
+    elif opcao == '3':
         # Seleção de Professor Específico
         print("\nSelecione o professor para vincular:")
         prof_list = df_prof[['id_professor', 'nome']].values.tolist()
@@ -225,12 +285,14 @@ def rodar_coleta():
     todos_artigos = obter_metadados_pubmed(list(pmids_para_coletar))
 
     # 5. Processamento (Preparar DataFrames)
-    lista_publicacoes = []
+    # 5. Processamento (Preparar DataFrames)
+    # Lista já pode conter manuais se Opção 4
     
     for art in todos_artigos:
         lista_publicacoes.append({
             "pmid": art['pmid'], "doi": art['doi'], "titulo": art['titulo'],
-            "revista": art['revista'], "ano": art['ano'], "autores": art['autores_string']
+            "revista": art['revista'], "ano": art['ano'], "autores": art['autores_string'],
+            "abstract": art.get('abstract', 'N/A')
         })
 
         # Lógica de Vínculo APENAS para Opção 1 (Variantes/Match Inteligente)
@@ -276,8 +338,8 @@ def rodar_coleta():
         df_pub_novo['pmid'] = df_pub_novo['pmid'].astype(str)
         # Concatena novo + antigo
         df_pub_final = pd.concat([df_pub_antigo, df_pub_novo], ignore_index=True)
-        # Remove duplicatas mantendo a última versão (ou primeira)
-        df_pub_final = df_pub_final.drop_duplicates(subset=['pmid'])
+        # Remove duplicatas mantendo a última versão (a nova, que tem abstract)
+        df_pub_final = df_pub_final.drop_duplicates(subset=['pmid'], keep='last')
     else:
         df_pub_final = df_pub_antigo
 
