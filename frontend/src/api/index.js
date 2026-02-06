@@ -24,5 +24,21 @@ export const api = {
     getProjetos: async () => {
         const res = await fetch(`${API_URL}/projetos`);
         return res.json();
+    },
+
+    getCollaborations: async (id) => {
+        const res = await fetch(`${API_URL}/collaborations/${id}`);
+        if (!res.ok) throw new Error("Collaborations not found");
+        return res.json();
+    },
+
+    getStats: async () => {
+        const res = await fetch(`${API_URL}/stats`);
+        return res.json();
+    },
+
+    searchPublications: async (query) => {
+        const res = await fetch(`${API_URL}/publicacoes/busca?q=${encodeURIComponent(query)}`);
+        return res.json();
     }
 };

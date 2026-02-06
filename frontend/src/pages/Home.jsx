@@ -1,29 +1,59 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api';
 import ProfessorCard from '../components/ProfessorCard';
-import { Search } from 'lucide-react';
+import { Search, BookOpen, FileText, Users } from 'lucide-react';
 
 export default function Home() {
     const [professores, setProfessores] = useState([]);
+    const [stats, setStats] = useState({ total_publicacoes: 0 });
     const [loading, setLoading] = useState(true);
     const [term, setTerm] = useState("");
     const [filterArea, setFilterArea] = useState("");
     const [filterLine, setFilterLine] = useState("");
 
+    const [pubSearch, setPubSearch] = useState("");
+    const [pubResults, setPubResults] = useState([]);
+    const [pubLoading, setPubLoading] = useState(false);
+
     useEffect(() => {
-        loadProfessores();
+        loadData();
     }, []);
 
-    const loadProfessores = async () => {
+    const loadData = async () => {
         try {
-            const data = await api.getProfessores();
-            setProfessores(data);
+            const [profData, statsData] = await Promise.all([
+                api.getProfessores(),
+                api.getStats()
+            ]);
+            setProfessores(profData);
+            setStats(statsData);
         } catch (error) {
             console.error(error);
         } finally {
             setLoading(false);
         }
     };
+
+    // Effect for publication search with debounce
+    useEffect(() => {
+        const timer = setTimeout(async () => {
+            if (pubSearch.length >= 2) {
+                setPubLoading(true);
+                try {
+                    const results = await api.searchPublications(pubSearch);
+                    setPubResults(results);
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    setPubLoading(false);
+                }
+            } else {
+                setPubResults([]);
+            }
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [pubSearch]);
 
     // Extract unique options
     const uniqueAreas = [...new Set(professores.flatMap(p => p.atuacao ? p.atuacao.split(';').map(s => s.trim()) : []))].sort();
@@ -38,97 +68,147 @@ export default function Home() {
         return matchTerm && matchArea && matchLine;
     });
 
+    if (loading) return <div className="p-12 text-center text-slate-500">Carregando dados...</div>;
+
     return (
-        <div className="space-y-8">
+        <div className="flex flex-col space-y-8 animate-diagonal-zoom">
             {/* Hero / Warning Section */}
-            <div className="bg-gradient-to-r from-sky-500 to-indigo-600 rounded-2xl p-8 text-white shadow-lg">
-                <h1 className="text-3xl font-bold mb-2">Produção Científica - Odontologia UFRN</h1>
-                <p className="opacity-90 max-w-2xl">
-                    Visualize a produção acadêmica, identifique linhas ou projetos de pesquisa e explore a rede de colaboração do nosso departamento de forma centralizada e rápida.
-                    <br />
-                    Navegue pelos cards para acessar a produção científica de cada docente.
-                </p>
-            </div>
-
-            {/* Info Disclosure */}
-            <details className="group bg-amber-50 rounded-xl border border-amber-100 overflow-hidden open:shadow-sm transition-all open:bg-white open:border-slate-200">
-                <summary className="flex items-center justify-between p-4 cursor-pointer text-amber-700 font-medium hover:bg-amber-100/50 transition-colors group-open:text-slate-700 group-open:bg-slate-50">
-                    <div className="flex items-center gap-2">
-                        <span className="bg-amber-200 text-amber-800 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">?</span>
-                        <span>Não encontrou o que procura?</span>
+            <div className="bg-gradient-to-r from-sky-500 to-indigo-600 rounded-2xl p-6 text-white shadow-lg overflow-hidden flex-shrink-0">
+                <div className="flex items-start gap-4">
+                    <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <BookOpen className="w-8 h-8 text-white" />
                     </div>
-                    <span className="text-xl transition-transform group-open:rotate-180 text-amber-500 group-open:text-slate-400">⌄</span>
-                </summary>
-                <div className="p-4 pt-2 text-sm text-slate-600 bg-white border-t border-slate-100 leading-relaxed">
-                    <p>
-                        Esta base é alimentada via <strong>PubMed/MEDLINE</strong> e <strong>SIGAA/Lattes</strong>.
-                        Publicações sem DOI <em>(Digital Object Identifier)</em> ou não indexadas em periódicos internacionais podem não aparecer automaticamente aqui no OdontoPub.
-                    </p>
-                    <p className="mt-2">
-                        Para uma lista completa e oficial, recomendamos sempre consultar diretamente o <strong>Currículo Lattes</strong> do docente, acessível através do botão disponível em cada card.
-                    </p>
-                </div>
-            </details>
-
-            {/* Filters Section */}
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row gap-4">
-                {/* Search Bar */}
-                <div className="relative flex-1">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search className="h-5 w-5 text-slate-400" />
-                    </div>
-                    <input
-                        type="text"
-                        className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 sm:text-sm transition-all"
-                        placeholder="Buscar por nome..."
-                        value={term}
-                        onChange={(e) => setTerm(e.target.value)}
-                    />
-                </div>
-
-                {/* Area Filter */}
-                <select
-                    className="block w-full md:w-48 pl-3 pr-8 py-2 border border-slate-200 rounded-lg leading-5 bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 sm:text-sm"
-                    value={filterArea}
-                    onChange={(e) => setFilterArea(e.target.value)}
-                >
-                    <option value="">Todas as Áreas</option>
-                    {uniqueAreas.map(a => <option key={a} value={a}>{a}</option>)}
-                </select>
-
-                {/* Research Line Filter */}
-                <select
-                    className="block w-full md:w-64 pl-3 pr-8 py-2 border border-slate-200 rounded-lg leading-5 bg-slate-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 sm:text-sm truncate"
-                    value={filterLine}
-                    onChange={(e) => setFilterLine(e.target.value)}
-                >
-                    <option value="">Todas as Linhas de Pesquisa</option>
-                    {uniqueLines.map(l => <option key={l} value={l}>{l}</option>)}
-                </select>
-            </div>
-
-            {/* Content */}
-            {loading ? (
-                <div className="text-center py-12 text-slate-500">Carregando dados...</div>
-            ) : (
-                <>
-                    <div className="flex justify-between items-center px-2">
-                        <h2 className="text-lg font-semibold text-slate-700">Docentes ({filtered.length})</h2>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {filtered.map(prof => (
-                            <ProfessorCard key={prof.id_professor} professor={prof} />
-                        ))}
-                    </div>
-
-                    {filtered.length === 0 && (
-                        <div className="text-center py-12 text-slate-400 italic">
-                            Nenhum docente encontrado para "{term}"
+                    <div className="flex flex-1 flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h1 className="text-2xl font-bold mb-2">Produção Científica - Odontologia UFRN</h1>
+                            <p className="text-sky-50 text-sm leading-relaxed max-w-2xl">
+                                Visualize a produção acadêmica, identifique linhas ou projetos de pesquisa e explore a rede de colaboração do nosso departamento.
+                            </p>
                         </div>
-                    )}
-                </>
-            )}
+                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 flex flex-col items-center justify-center min-w-[160px]">
+                            <span className="text-sky-100 text-[10px] uppercase font-bold tracking-widest mb-1">Total Produção</span>
+                            <span className="text-3xl font-black text-white">{stats.total_publicacoes}</span>
+                            <span className="text-sky-200 text-xs">Publicações Ativas</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Double Search Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* Professor Filters */}
+                <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4">
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <Users className="w-4 h-4" /> Buscar Docentes
+                    </h3>
+                    <div className="flex flex-col md:flex-row gap-3">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <input
+                                type="text"
+                                className="block w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-sky-500 transition-all"
+                                placeholder="Nome ou área..."
+                                value={term}
+                                onChange={(e) => setTerm(e.target.value)}
+                            />
+                        </div>
+                        <select
+                            className="block w-full md:w-32 pl-3 pr-8 py-2 border border-slate-200 rounded-lg bg-slate-50 text-xs focus:ring-2 focus:ring-sky-500 transition-all truncate"
+                            value={filterArea}
+                            onChange={(e) => setFilterArea(e.target.value)}
+                        >
+                            <option value="">Áreas</option>
+                            {uniqueAreas.map(a => <option key={a} value={a}>{a}</option>)}
+                        </select>
+                    </div>
+                </div>
+
+                {/* Global Publication Search */}
+                <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4">
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <FileText className="w-4 h-4" /> Buscar Publicações
+                    </h3>
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                            type="text"
+                            className="block w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
+                            placeholder="Título, autor, pmid, doi, revista..."
+                            value={pubSearch}
+                            onChange={(e) => setPubSearch(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Results Section */}
+            <div className="space-y-8 pb-12">
+                {/* Publication Results (Shown only when searching) */}
+                {pubSearch.length >= 2 && (
+                    <div className="animate-diagonal-zoom">
+                        <h2 className="text-lg font-bold text-slate-800 mb-4 px-2 flex items-center justify-between">
+                            Artigos Encontrados
+                            <span className="text-xs font-normal text-slate-500 bg-slate-100 px-2 py-1 rounded-full">{pubResults.length} resultados</span>
+                        </h2>
+
+                        {pubLoading ? (
+                            <div className="text-center py-8 text-slate-400">Buscando artigos...</div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {pubResults.length > 0 ? (
+                                    pubResults.map(pub => (
+                                        <div key={pub.pmid} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition-all group">
+                                            <div className="flex justify-between items-start gap-2 mb-2">
+                                                <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded uppercase">{pub.revista}</span>
+                                                <span className="text-[10px] text-slate-400 font-bold">{pub.ano}</span>
+                                            </div>
+                                            <h4 className="text-sm font-bold text-slate-900 leading-tight group-hover:text-indigo-700 transition-colors mb-2 line-clamp-2">
+                                                {pub.titulo}
+                                            </h4>
+                                            <p className="text-[11px] text-slate-500 line-clamp-1 mb-3">{pub.autores}</p>
+                                            <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-50">
+                                                <div className="flex gap-2 text-[10px]">
+                                                    <a href={`https://pubmed.ncbi.nlm.nih.gov/${pub.pmid}/`} target="_blank" className="text-sky-600 font-bold hover:underline">PMID</a>
+                                                    {pub.doi && pub.doi !== 'N/A' && (
+                                                        <a href={`https://doi.org/${pub.doi}`} target="_blank" className="text-sky-600 font-bold hover:underline">DOI</a>
+                                                    )}
+                                                </div>
+                                                <span className="text-[10px] text-slate-400 italic">via {pub.professor_name ? pub.professor_name.split(' ')[0] : '...'}</span>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="md:col-span-2 text-center py-8 text-slate-400 text-sm bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                                        Nenhuma publicação corresponde à sua busca.
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
+
+                {/* Docentes Results */}
+                {pubSearch.length < 2 && (
+                    <div className="animate-diagonal-zoom">
+                        <div className="flex justify-between items-center px-2 mb-4">
+                            <h2 className="text-lg font-bold text-slate-800">Docentes em Destaque</h2>
+                            <span className="text-xs text-slate-500">{filtered.length} encontrados</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {filtered.map(prof => (
+                                <ProfessorCard key={prof.id_professor} professor={prof} />
+                            ))}
+                        </div>
+
+                        {filtered.length === 0 && (
+                            <div className="text-center py-12 text-slate-400 italic bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                Nenhum docente encontrado para "{term}"
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
