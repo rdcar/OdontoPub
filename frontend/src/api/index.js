@@ -1,0 +1,28 @@
+const API_URL = "http://localhost:8000";
+
+export const api = {
+    getProfessores: async (filters = {}) => {
+        const params = new URLSearchParams();
+        if (filters.nome) params.append("nome", filters.nome);
+        if (filters.atuacao) params.append("atuacao", filters.atuacao);
+
+        const res = await fetch(`${API_URL}/professores?${params}`);
+        return res.json();
+    },
+
+    getProfessorById: async (id) => {
+        const res = await fetch(`${API_URL}/professores/${id}`);
+        if (!res.ok) throw new Error("Professor not found");
+        return res.json();
+    },
+
+    getGraph: async () => {
+        const res = await fetch(`${API_URL}/graph`);
+        return res.json();
+    },
+
+    getProjetos: async () => {
+        const res = await fetch(`${API_URL}/projetos`);
+        return res.json();
+    }
+};

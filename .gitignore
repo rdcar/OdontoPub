@@ -1,4 +1,4 @@
 *.txt
 *.xml
-debug_abstract.py
-extrair_abstract.py
+extract_projects.py
+projetos_de_pesquisa.mhtml
