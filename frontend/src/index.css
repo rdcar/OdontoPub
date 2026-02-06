@@ -1,5 +1,22 @@
 @import "tailwindcss";
 
+@layer components {
+  .animate-diagonal-zoom {
+    animation: diagonal-zoom 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+@keyframes diagonal-zoom {
+  0% {
+    opacity: 0;
+    transform: translate(-20px, -20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1);
+  }
+}
+
 body {
   @apply bg-gray-50 text-gray-900;
 }

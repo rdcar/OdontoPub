@@ -28,7 +28,7 @@ export default function ProfessorDetail() {
     if (!data) return <div className="p-8 text-center text-red-500">Erro ao carregar perfil.</div>;
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="flex flex-col space-y-8 animate-diagonal-zoom">
             <Link to="/" className="inline-flex items-center text-sm text-slate-500 hover:text-sky-600 mb-4">
                 <ArrowLeft className="w-4 h-4 mr-1" />
                 Voltar para lista

@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api';
-import { Link } from 'react-router-dom';
-import { BookOpen, Calendar, ArrowRight, Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { BookOpen, Calendar, ArrowRight, Search, Users, FileText } from 'lucide-react';
 
 export default function Projects() {
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [professorsData, setProfessorsData] = useState([]);
+    const [selectedProfessor, setSelectedProfessor] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         loadData();
@@ -15,7 +17,11 @@ export default function Projects() {
     const loadData = async () => {
         try {
             const res = await api.getProjetos();
-            setData(res);
+            setProfessorsData(res);
+            // Pre-select first professor if available
+            if (res.length > 0) {
+                setSelectedProfessor(res[0]);
+            }
         } catch (e) {
             console.error(e);
         } finally {
@@ -23,119 +29,191 @@ export default function Projects() {
         }
     };
 
-    const filteredData = data.filter(prof =>
+    const filteredProfessors = professorsData.filter(prof =>
         prof.nome.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     if (loading) return <div className="p-12 text-center text-slate-500">Carregando projetos...</div>;
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-8 text-white shadow-lg">
-                <h1 className="text-3xl font-bold mb-2">Linhas e Projetos de Pesquisa</h1>
-                <p className="opacity-90 max-w-2xl">
-                    Explore os projetos de pesquisa em andamento e concluídos, organizados por docente.
-                </p>
-            </div>
-
-            {/* Filter Card */}
-            <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-100 -mt-6 mx-4 relative z-10">
-                <div className="relative max-w-md mx-auto md:mx-0">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search className="h-5 w-5 text-slate-400" />
+        <div className="flex flex-col h-[92vh] space-y-4 animate-diagonal-zoom">
+            {/* Header Card */}
+            <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 text-white shadow-lg flex-shrink-0">
+                <div className="flex items-start gap-4">
+                    <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <BookOpen className="w-8 h-8 text-white" />
                     </div>
-                    <input
-                        type="text"
-                        placeholder="Filtrar por nome do professor..."
-                        className="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-lg bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all sm:text-sm"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                    <div className="flex-1">
+                        <h1 className="text-2xl font-bold mb-2">Linhas e Projetos de Pesquisa</h1>
+                        <p className="text-emerald-50 text-sm leading-relaxed max-w-3xl">
+                            Explore as linhas de pesquisa e os projetos científicos em andamento ou concluídos de cada docente. Selecione um professor no painel à esquerda para detalhar suas frentes de investigação e histórico de projetos.
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <div className="space-y-8 pt-4">
-                {filteredData.map(prof => (
-                    <div key={prof.id_professor} className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col md:flex-row">
-                        {/* Professor Info Column */}
-                        <div className="md:w-1/4 bg-slate-50 p-6 flex flex-col items-center text-center border-b md:border-b-0 md:border-r border-slate-100">
-                            <div className="w-24 h-24 rounded-full bg-white border-4 border-white shadow-sm overflow-hidden mb-4">
-                                <img
-                                    src={`http://localhost:8000/assets/${prof.nome.toLowerCase().split(' ').join('_')}.jpg`}
-                                    onError={(e) => { e.target.onerror = null; e.target.style.display = 'none'; e.target.parentElement.innerHTML = '👤' }}
-                                    alt={prof.nome}
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-                            <h3 className="font-bold text-slate-900 mb-1">{prof.nome}</h3>
-                            <p className="text-xs text-slate-500 uppercase tracking-wide font-semibold mb-4">{prof.categoria}</p>
+            {/* Main Content - Two Panel Layout */}
+            <div className="flex-1 flex flex-col md:flex-row gap-4 min-h-0">
+                {/* Left Panel - Professor Selection */}
+                <div className="md:w-1/3 bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden flex flex-col">
+                    {/* Header */}
+                    <div className="p-5 border-b border-slate-100 bg-gradient-to-br from-emerald-50 to-white">
+                        <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4">
+                            <Users className="w-5 h-5 text-emerald-600" />
+                            Docentes
+                        </h2>
 
-                            {prof.linhas_pesquisas && (
-                                <div className="mb-6 text-left w-full bg-slate-50 p-3 rounded-lg border border-slate-100">
-                                    <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center">
-                                        <BookOpen className="w-3 h-3 mr-1" />
-                                        Linhas de Pesquisa
-                                    </h5>
-                                    <div className="flex flex-wrap gap-1.5">
-                                        {prof.linhas_pesquisas.split(';').map((line, i) => (
-                                            <span key={i} className="px-2 py-1 bg-white border border-slate-200 rounded text-[10px] text-slate-600 font-medium leading-tight">
-                                                {line.trim()}
-                                            </span>
-                                        ))}
+                        {/* Search */}
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                            <input
+                                type="text"
+                                placeholder="Buscar por professor..."
+                                className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400"
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Professor List */}
+                    <div className="flex-1 overflow-y-auto p-3 space-y-2">
+                        {filteredProfessors.map(prof => (
+                            <button
+                                key={prof.id_professor}
+                                onClick={() => setSelectedProfessor(prof)}
+                                className={`w-full text-left p-3 rounded-xl transition-all ${selectedProfessor?.id_professor === prof.id_professor
+                                    ? 'bg-emerald-50 ring-2 ring-emerald-500 shadow-sm'
+                                    : 'bg-slate-50 hover:bg-slate-100'
+                                    }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-white overflow-hidden ring-2 ring-white shadow-sm flex-shrink-0">
+                                        <img
+                                            src={`http://localhost:8000/assets/${prof.nome.toLowerCase().split(' ').join('_')}.jpg`}
+                                            onError={e => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = '👤'; }}
+                                            alt=""
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className={`font-semibold text-sm ${selectedProfessor?.id_professor === prof.id_professor
+                                            ? 'text-emerald-900'
+                                            : 'text-slate-800'
+                                            } truncate`}>
+                                            {prof.nome}
+                                        </h3>
+                                        <p className="text-[10px] text-slate-500 uppercase tracking-wide font-medium">{prof.categoria}</p>
                                     </div>
                                 </div>
-                            )}
+                            </button>
+                        ))}
 
-                            <Link
-                                to={`/professor/${prof.id_professor}`}
-                                className="mt-auto inline-flex items-center text-sm font-medium text-sky-600 hover:text-sky-700 hover:underline decoration-sky-300 underline-offset-4"
-                            >
-                                Ver Perfil Completo <ArrowRight className="w-4 h-4 ml-1" />
-                            </Link>
-                        </div>
-
-                        {/* Projects List Column */}
-                        <div className="flex-1 p-6">
-                            <div className="flex items-center justify-between mb-4 border-b border-slate-100 pb-2">
-                                <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider">
-                                    Projetos de Pesquisa ({prof.projetos.length})
-                                </h4>
+                        {filteredProfessors.length === 0 && (
+                            <div className="text-center py-12 text-slate-400">
+                                <Search className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                                <p>Nenhum docente encontrado</p>
                             </div>
+                        )}
+                    </div>
+                </div>
 
-                            <div className="space-y-3">
-                                {prof.projetos.length > 0 ? (
-                                    prof.projetos.map((proj, idx) => (
-                                        <div key={idx} className="flex gap-4 group hover:bg-slate-50 p-2 rounded-lg transition-colors -mx-2">
-                                            <div className="flex-shrink-0 pt-0.5">
-                                                <span className="flex items-center justify-center px-2.5 py-1 bg-emerald-100/50 text-emerald-700 text-xs font-bold rounded-md border border-emerald-100">
-                                                    <Calendar className="w-3 h-3 mr-1 opacity-70" />
-                                                    {proj.ano}
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <p className="text-slate-700 text-sm leading-relaxed group-hover:text-slate-900 font-medium transition-colors">
-                                                    {proj.titulo}
-                                                </p>
-                                            </div>
+                {/* Right Panel - Context View */}
+                <div className="md:flex-1 bg-white rounded-2xl shadow-lg border border-slate-200 overflow-hidden flex flex-col">
+                    {!selectedProfessor ? (
+                        <div className="flex-1 flex items-center justify-center text-center p-8">
+                            <div>
+                                <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <BookOpen className="w-10 h-10 text-emerald-500" />
+                                </div>
+                                <h3 className="text-lg font-bold text-slate-800 mb-2">Projetos de Pesquisa</h3>
+                                <p className="text-slate-500 max-w-xs text-sm">
+                                    Selecione um docente à esquerda para visualizar sua produção científica e linhas de pesquisa.
+                                </p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex-1 flex flex-col min-h-0">
+                            {/* Selected Header */}
+                            <div className="p-6 border-b border-slate-100 bg-gradient-to-br from-white via-emerald-50/20 to-white flex-shrink-0">
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-16 h-16 rounded-2xl bg-white overflow-hidden ring-4 ring-white shadow flex-shrink-0">
+                                            <img
+                                                src={`http://localhost:8000/assets/${selectedProfessor.nome.toLowerCase().split(' ').join('_')}.jpg`}
+                                                onError={e => { e.target.style.display = 'none'; }}
+                                                alt=""
+                                                className="w-full h-full object-cover"
+                                            />
                                         </div>
-                                    ))
-                                ) : (
-                                    <p className="text-sm text-slate-400 italic">Nenhum projeto cadastrado.</p>
+                                        <div>
+                                            <h2 className="text-xl font-bold text-slate-900 mb-0.5">{selectedProfessor.nome}</h2>
+                                            <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">{selectedProfessor.categoria}</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => navigate(`/professor/${selectedProfessor.id_professor}`)}
+                                        className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium hover:bg-emerald-700 transition shadow-sm hover:shadow-md"
+                                    >
+                                        Ver Perfil
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                                {/* Research Lines */}
+                                {selectedProfessor.linhas_pesquisas && (
+                                    <section>
+                                        <h4 className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                            <div className="w-1.5 h-4 bg-emerald-500 rounded-full"></div>
+                                            Linhas de Pesquisa
+                                        </h4>
+                                        <div className="flex flex-wrap gap-2">
+                                            {selectedProfessor.linhas_pesquisas.split(';').map((line, i) => (
+                                                <div key={i} className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 font-medium">
+                                                    {line.trim()}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </section>
                                 )}
+
+                                {/* Projects */}
+                                <section>
+                                    <h4 className="text-xs font-bold text-emerald-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                        <div className="w-1.5 h-4 bg-emerald-500 rounded-full"></div>
+                                        Projetos Científicos ({selectedProfessor.projetos.length})
+                                    </h4>
+
+                                    <div className="space-y-4">
+                                        {selectedProfessor.projetos.length > 0 ? (
+                                            selectedProfessor.projetos.map((proj, idx) => (
+                                                <div key={idx} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:border-emerald-200 transition-colors flex gap-4 text-left">
+                                                    <div className="flex-shrink-0">
+                                                        <div className="flex flex-col items-center justify-center p-2 bg-emerald-50 rounded-lg min-w-[60px] border border-emerald-100">
+                                                            <Calendar className="w-4 h-4 text-emerald-600 mb-1" />
+                                                            <span className="text-xs font-bold text-emerald-700">{proj.ano}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-slate-700 font-medium leading-relaxed group-hover:text-slate-900 transition-colors">
+                                                            {proj.titulo}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-center">
+                                                <FileText className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                                                <p className="text-slate-400 text-sm">Nenhum projeto registrado no SIGAA para este docente.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </section>
                             </div>
                         </div>
-                    </div>
-                ))
-                }
-
-                {filteredData.length === 0 && (
-                    <div className="text-center py-16">
-                        <div className="text-4xl mb-4">🔍</div>
-                        <h3 className="text-lg font-medium text-slate-900">Nenhum professor encontrado</h3>
-                        <p className="text-slate-500">Tente buscar por outro nome.</p>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -1,117 +1,92 @@
 # 🦷 OdontoPub - UFRN
 
-O **OdontoPub** é um dashboard analítico e interativo desenvolvido em **Python** e **Streamlit**, projetado para centralizar, monitorar e visualizar a produção acadêmica do corpo docente do Departamento de Odontologia da Universidade Federal do Rio Grande do Norte (UFRN).
+O **OdontoPub** é um dashboard analítico e interativo desenvolvido em **React, Tailwind CSS, FastAPI e Python**, projetado para centralizar, monitorar e visualizar a produção acadêmica do corpo docente do Departamento de Odontologia da Universidade Federal do Rio Grande do Norte (UFRN).
+
 O projeto resolve o problema da **dispersão de informações**, oferecendo aos alunos e pesquisadores uma interface única para identificar linhas de pesquisa, encontrar orientadores e acompanhar a evolução científica do departamento, sem a necessidade de navegar manualmente por dezenas de currículos individuais.
 
-## 🛠 Arquitetura e Fluxo de Dados
+---
 
-O projeto opera sob uma arquitetura de ETL (*Extract, Transform, Load*) simplificada, armazenando os dados em arquivos CSV relacionais para garantir portabilidade e facilidade de manutenção.
+## 🚀 Principais Funcionalidades
 
-1. **Entrada (Input):** Lista controlada de docentes (`professores.csv`) contendo nomes, variações bibliográficas e IDs.
-2. **Extração (Mining):**
-* **Via API (PubMed):** Script automatizado que busca artigos indexados.
-* **Via Input Manual:** Script para inserção de obras não indexadas (revistas locais, anais).
+### 📊 Dashboard de Estatísticas
+Visualização centralizada com indicadores de impacto, incluindo o total de publicações únicas do departamento, áreas de atuação predominantes e linhas de pesquisa ativas.
 
+### 🔍 Busca Global de Publicações
+Motor de busca avançado que permite localizar artigos em toda a base de dados por:
+*   Título ou Palavras-chave
+*   Autores
+*   Ano de Publicação
+*   Revista (Journal)
+*   PMID ou DOI
 
-3. **Armazenamento (Database):**
-* `publicacoes.csv`: Metadados dos artigos (Título, DOI, Revista, Ano, Autores).
-* `vinculos.csv`: Tabela de junção que conecta artigos (PMID) aos professores (ID).
+### 🌐 Rede de Colaboração
+Visualização interativa baseada em grafos que mapeia as conexões científicas entre os professores do departamento, permitindo identificar clusters de pesquisa e parcerias produtivas.
 
+### 📚 Linhas e Projetos de Pesquisa
+Painel dedicado para explorar os projetos científicos em andamento ou concluídos, categorizados por docente, facilitando a identificação de frentes de investigação atuais.
 
-4. **Visualização (Frontend):** Aplicação Web (`app.py`) que consome os CSVs e gera gráficos e perfis em tempo real.
+### ✨ Experiência Visual Premium
+Interface moderna com animações fluidas (*Diagonal Zoom*), modo responsivo e foco em usabilidade, proporcionando uma navegação intuitiva tanto em desktop quanto em dispositivos móveis.
 
-## 🚀 Funcionalidades
+---
 
-### 1. Coleta Híbrida de Dados
+## 🛠 Arquitetura do Sistema
 
-O sistema possui um coletor robusto (`coletor_pubmed.py`) capaz de operar em três modos distintos para maximizar a recuperação de artigos:
+O projeto utiliza uma arquitetura moderna e desacoplada, separando a lógica de processamento de dados da interface do usuário.
 
-* **Busca por Variantes (Match Inteligente):** Busca o professor pelas variações de nome cadastradas e valida se ele consta na lista de autores do XML retornado.
-* **Busca por Nome Oficial:** Vinculação direta baseada no nome principal. Nesse caso, a API se encarrega de pesquisar possíveis variações.
-* **Busca por Query Personalizada:** Permite ao operador inserir termos específicos (ex: *"de Almeida ÉO"* para Érica Janine Dantas da Silveira) para encontrar autores cujos nomes foram abreviados de forma não padronizada pelo PubMed.
+### **Backend (FastAPI + Pandas)**
+*   **Processamento:** Engine em Python que manipula grandes volumes de dados bibliográficos via Pandas.
+*   **API:** Endpoints REST otimizados para filtragem rápida, busca global e geração de estatísticas em tempo real.
+*   **Persistência:** Dados armazenados em arquivos CSV relacionais (`professores.csv`, `publicacoes.csv`, `vinculos.csv`, `projetos.csv`), garantindo portabilidade e facilidade de auditoria.
 
-### 2. Cadastro Manual de Obras (`cadastrar_manual.py`)
+### **Frontend (React + Vite + Tailwind)**
+*   **Interface:** SPA (Single Page Application) rápida e responsiva.
+*   **Visualização:** Utiliza `react-force-graph` para a rede de colaboração e `Lucide React` para iconografia técnica.
+*   **Estilização:** Tailwind CSS para um design consistente com animações personalizadas.
 
-Para contornar a ausência de indexação de revistas locais ou anais de congressos no PubMed, foi criado um script dedicado que:
+---
 
-* Gera IDs únicos internos (`MAN_YYYYMM...`) para evitar colisão com o PubMed.
-* Permite popular a base com artigos relevantes que não possuem DOI ou PMID.
+## 📂 Estrutura de Dados (CSVs)
 
-### 3. Dashboard Interativo (`app.py`)
+O sistema opera sob uma estrutura ETL simplificada:
+*   `professores.csv`: Cadastro mestre com nomes, variantes bibliográficas, áreas de atuação e linhas de pesquisa.
+*   `publicacoes.csv`: Metadados completos dos artigos indexados (PubMed) e manuais.
+*   `vinculos.csv`: Tabela de junção (N:N) que conecta artigos aos seus respectivos autores docentes.
+*   `projetos.csv`: Listagem de projetos de pesquisa extraídos ou cadastrados.
 
-* **Perfis Individuais:** Exibe foto, categoria, link para o Lattes e lista cronológica de publicações.
-* **Filtros Dinâmicos:** Filtragem por ano, nome do docente ou palavras-chave no título.
-* **Indicadores:** Contagem total de publicações e período de atividade.
-
-## ⚠️ Limitações Técnicas e Metodológicas
-
-A arquitetura atual foi desenhada para contornar restrições importantes na obtenção de dados acadêmicos no Brasil:
-
-### 1. A Questão do Lattes (ScriptLattes/XML)
-
-Antigamente, ferramentas como o `scriptLattes` permitiam a extração massiva de dados diretamente da Plataforma Lattes. Atualmente, devido à implementação de **CAPTCHAs agressivos e Firewalls (WAF)** pelo CNPq, a extração automatizada direta do Lattes tornou-se inviável para projetos abertos.
-
-* **Impacto:** O projeto não consegue "baixar" o currículo do professor automaticamente.
-* **Solução:** Utilizamos o **PubMed** como fonte primária de verdade para artigos internacionais e o cadastro manual para complementar a produção nacional/regional.
-
-### 2. O Desafio dos Homônimos
-
-Diferente do Lattes, que usa um ID único (CPF/LattesID), a busca via API do PubMed baseia-se em **strings de texto (nomes de autores)**.
-
-* **Risco:** Um professor chamado "José Silva" pode ter sua produção misturada com um homônimo de outra instituição ou área (ex: Física).
-* **Mitigação:** O algoritmo de "Match Inteligente" tenta cruzar variantes, mas a validação humana ou o uso da **Busca por Query Personalizada** (implementada neste projeto) são essenciais para garantir a integridade dos dados.
+---
 
 ## 💻 Como Executar o Projeto
 
-### Pré-requisitos
-
-* Python 3.8+
-* Bibliotecas listadas em `requirements.txt`
-
-### Passo 1: Instalação
-
-Clone o repositório e instale as dependências:
-
+### **1. Backend**
+Certifique-se de ter o Python 3.9+ instalado.
 ```bash
+# Navegue até a pasta raiz
+cd OdontoPub
+
+# Instale as dependências
 pip install -r requirements.txt
 
+# Inicie o servidor
+python backend/main.py
 ```
+O backend ficará disponível em `http://localhost:8000`.
 
-### Passo 2: Atualizar a Base de Dados
-
-Você tem duas opções para alimentar o sistema:
-
-**Opção A: Coleta Automática (PubMed)**
-Execute o script principal e siga as instruções do menu (escolha entre busca por variantes, nome exato ou query manual):
-
+### **2. Frontend**
+Certifique-se de ter o Node.js instalado.
 ```bash
-python coletor_pubmed.py
+# Navegue até a pasta do frontend
+cd frontend
 
+# Instale as dependências
+npm install
+
+# Inicie o servidor de desenvolvimento
+npm run dev
 ```
+O frontend ficará disponível em `http://localhost:5173`.
 
-*O script fará o update dos arquivos `publicacoes.csv` e `vinculos.csv` sem apagar registros anteriores.*
+---
 
-**Opção B: Cadastro Manual**
-Para inserir um artigo que não está no PubMed:
-
-```bash
-python cadastrar_manual.py
-
-```
-
-### Passo 3: Iniciar o Dashboard
-
-Para visualizar os dados no navegador:
-
-```bash
-streamlit run app.py
-
-```
-## 📂 Estrutura de Arquivos
-
-* `app.py`: Interface do usuário (Streamlit).
-* `coletor_pubmed.py`: Motor de busca na API do NCBI.
-* `cadastrar_manual.py`: Ferramenta de inserção de dados offline.
-* `professores.csv`: Cadastro mestre dos docentes.
-* `publicacoes.csv`: Banco de dados de artigos.
-* `vinculos.csv`: Tabela relacional (N:N) entre publicações e autores.
+## ⚠️ Observação sobre Coleta de Dados
+O projeto utiliza o **PubMed** como fonte primária para artigos internacionais através de scripts de mineração automatizados, contornando as restrições de CAPTCHAs da Plataforma Lattes e centralizando a produção científica de forma confiável.
