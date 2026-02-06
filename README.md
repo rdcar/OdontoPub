@@ -28,6 +28,12 @@ Painel dedicado para explorar os projetos científicos em andamento ou concluíd
 ### ✨ Experiência Visual Premium
 Interface moderna com animações fluidas (*Diagonal Zoom*), modo responsivo e foco em usabilidade, proporcionando uma navegação intuitiva tanto em desktop quanto em dispositivos móveis.
 
+<div style="text-align: center;">
+  <img src="screenshots\screenshot1.png" alt="left" style="display: inline-flex; margin: 2px auto; width:25%">
+  <img src="screenshots\screenshot2.png" alt="center" style="display: inline-flex; margin: 2px auto; width:24%">
+  <img src="screenshots\screenshot3.png" alt="right" style="display: inline-flex; margin: 2px auto; width:24.3%">
+</div>   
+
 ---
 
 ## 🛠 Arquitetura do Sistema
