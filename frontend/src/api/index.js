@@ -40,5 +40,17 @@ export const api = {
     searchPublications: async (query) => {
         const res = await fetch(`${API_URL}/publicacoes/busca?q=${encodeURIComponent(query)}`);
         return res.json();
+    },
+
+    sendContact: async (data) => {
+        const res = await fetch(`${API_URL}/contact`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error("Erro ao enviar mensagem");
+        return res.json();
     }
 };
