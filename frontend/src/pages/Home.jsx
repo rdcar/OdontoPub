@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api';
 import ProfessorCard from '../components/ProfessorCard';
-import { Search, BookOpen, FileText, Users } from 'lucide-react';
+import { Search, BookOpenText, FileText, Users } from 'lucide-react';
 
 export default function Home() {
     const [professores, setProfessores] = useState([]);
@@ -76,7 +76,7 @@ export default function Home() {
             <div className="bg-gradient-to-r from-sky-500 to-indigo-600 rounded-2xl p-6 text-white shadow-lg overflow-hidden flex-shrink-0">
                 <div className="flex items-start gap-4">
                     <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <BookOpen className="w-8 h-8 text-white" />
+                        <BookOpenText className="w-8 h-8 text-white" />
                     </div>
                     <div className="flex flex-1 flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
@@ -88,7 +88,7 @@ export default function Home() {
                         <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 flex flex-col items-center justify-center min-w-[160px]">
                             <span className="text-sky-100 text-[10px] uppercase font-bold tracking-widest mb-1">Total Produção</span>
                             <span className="text-3xl font-black text-white">{stats.total_publicacoes}</span>
-                            <span className="text-sky-200 text-xs">Publicações Ativas</span>
+                            <span className="text-sky-200 text-xs">Artigos</span>
                         </div>
                     </div>
                 </div>
@@ -97,8 +97,8 @@ export default function Home() {
             {/* Double Search Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Professor Filters */}
-                <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-4 transition-colors">
+                    <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2">
                         <Users className="w-4 h-4" /> Buscar Docentes
                     </h3>
                     <div className="flex flex-col md:flex-row gap-3">
@@ -106,14 +106,14 @@ export default function Home() {
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <input
                                 type="text"
-                                className="block w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-sky-500 transition-all"
+                                className="block w-full pl-9 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-sm focus:ring-2 focus:ring-sky-500 transition-all text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
                                 placeholder="Nome ou área..."
                                 value={term}
                                 onChange={(e) => setTerm(e.target.value)}
                             />
                         </div>
                         <select
-                            className="block w-full md:w-32 pl-3 pr-8 py-2 border border-slate-200 rounded-lg bg-slate-50 text-xs focus:ring-2 focus:ring-sky-500 transition-all truncate"
+                            className="block w-full md:w-32 pl-3 pr-8 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-xs focus:ring-2 focus:ring-sky-500 transition-all truncate text-slate-900 dark:text-slate-100"
                             value={filterArea}
                             onChange={(e) => setFilterArea(e.target.value)}
                         >
@@ -124,15 +124,15 @@ export default function Home() {
                 </div>
 
                 {/* Global Publication Search */}
-                <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col gap-4">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col gap-4 transition-colors">
+                    <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2">
                         <FileText className="w-4 h-4" /> Buscar Publicações
                     </h3>
                     <div className="relative">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                         <input
                             type="text"
-                            className="block w-full pl-9 pr-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm focus:ring-2 focus:ring-indigo-500 transition-all"
+                            className="block w-full pl-9 pr-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-sm focus:ring-2 focus:ring-indigo-500 transition-all text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
                             placeholder="Título, autor, pmid, doi, revista..."
                             value={pubSearch}
                             onChange={(e) => setPubSearch(e.target.value)}
@@ -146,9 +146,9 @@ export default function Home() {
                 {/* Publication Results (Shown only when searching) */}
                 {pubSearch.length >= 2 && (
                     <div className="animate-diagonal-zoom">
-                        <h2 className="text-lg font-bold text-slate-800 mb-4 px-2 flex items-center justify-between">
+                        <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-4 px-2 flex items-center justify-between">
                             Artigos Encontrados
-                            <span className="text-xs font-normal text-slate-500 bg-slate-100 px-2 py-1 rounded-full">{pubResults.length} resultados</span>
+                            <span className="text-xs font-normal text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-full">{pubResults.length} resultados</span>
                         </h2>
 
                         {pubLoading ? (
@@ -157,20 +157,20 @@ export default function Home() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {pubResults.length > 0 ? (
                                     pubResults.map(pub => (
-                                        <div key={pub.pmid} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-indigo-300 transition-all group">
+                                        <div key={pub.pmid} className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-500 transition-all group">
                                             <div className="flex justify-between items-start gap-2 mb-2">
-                                                <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded uppercase">{pub.revista}</span>
+                                                <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/50 px-2 py-0.5 rounded uppercase">{pub.revista}</span>
                                                 <span className="text-[10px] text-slate-400 font-bold">{pub.ano}</span>
                                             </div>
-                                            <h4 className="text-sm font-bold text-slate-900 leading-tight group-hover:text-indigo-700 transition-colors mb-2 line-clamp-2">
+                                            <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors mb-2 line-clamp-2">
                                                 {pub.titulo}
                                             </h4>
-                                            <p className="text-[11px] text-slate-500 line-clamp-1 mb-3">{pub.autores}</p>
-                                            <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-50">
+                                            <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mb-3">{pub.autores}</p>
+                                            <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-50 dark:border-slate-700">
                                                 <div className="flex gap-2 text-[10px]">
-                                                    <a href={`https://pubmed.ncbi.nlm.nih.gov/${pub.pmid}/`} target="_blank" className="text-sky-600 font-bold hover:underline">PMID</a>
+                                                    <a href={`https://pubmed.ncbi.nlm.nih.gov/${pub.pmid}/`} target="_blank" className="text-sky-600 dark:text-sky-400 font-bold hover:underline">PMID</a>
                                                     {pub.doi && pub.doi !== 'N/A' && (
-                                                        <a href={`https://doi.org/${pub.doi}`} target="_blank" className="text-sky-600 font-bold hover:underline">DOI</a>
+                                                        <a href={`https://doi.org/${pub.doi}`} target="_blank" className="text-sky-600 dark:text-sky-400 font-bold hover:underline">DOI</a>
                                                     )}
                                                 </div>
                                                 <span className="text-[10px] text-slate-400 italic">via {pub.professor_name ? pub.professor_name.split(' ')[0] : '...'}</span>
@@ -178,7 +178,7 @@ export default function Home() {
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="md:col-span-2 text-center py-8 text-slate-400 text-sm bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                                    <div className="md:col-span-2 text-center py-8 text-slate-400 text-sm bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-700">
                                         Nenhuma publicação corresponde à sua busca.
                                     </div>
                                 )}
@@ -191,8 +191,8 @@ export default function Home() {
                 {pubSearch.length < 2 && (
                     <div className="animate-diagonal-zoom">
                         <div className="flex justify-between items-center px-2 mb-4">
-                            <h2 className="text-lg font-bold text-slate-800">Docentes em Destaque</h2>
-                            <span className="text-xs text-slate-500">{filtered.length} encontrados</span>
+                            <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">Docentes em Destaque</h2>
+                            <span className="text-xs text-slate-500 dark:text-slate-400">{filtered.length} encontrados</span>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -202,7 +202,7 @@ export default function Home() {
                         </div>
 
                         {filtered.length === 0 && (
-                            <div className="text-center py-12 text-slate-400 italic bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                            <div className="text-center py-12 text-slate-400 italic bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
                                 Nenhum docente encontrado para "{term}"
                             </div>
                         )}

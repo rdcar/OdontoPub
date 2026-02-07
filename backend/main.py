@@ -1,11 +1,79 @@
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, EmailStr
 import pandas as pd
 from typing import List, Optional
 import os
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 app = FastAPI(title="OdontoPub API", version="2.0")
+
+# --- Models ---
+class ContactForm(BaseModel):
+    name: str
+    email: str
+    subject: str
+    message: str
+    
+# --- Email Configuration ---
+# In a real production environment, use environment variables!
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+SENDER_EMAIL = os.getenv("EMAIL_USER", "renatodc89@gmail.com") 
+SENDER_PASSWORD = os.getenv("EMAIL_PASSWORD", "your_app_password_here") 
+
+@app.post("/contact")
+def send_contact_email(form: ContactForm):
+    """
+    Receives contact form data and sends an email to the administrator.
+    """
+    try:
+        # Create message
+        msg = MIMEMultipart()
+        msg['From'] = SENDER_EMAIL
+        msg['To'] = "renatodc89@gmail.com"
+        msg['Subject'] = f"[OdontoPub Contato] {form.subject}"
+
+        body = f"""
+        Mensagem recebida pelo formulário de contato do OdontoPub:
+        
+        Nome: {form.name}
+        Email: {form.email}
+        Assunto: {form.subject}
+        
+        Mensagem:
+        {form.message}
+        """
+        msg.attach(MIMEText(body, 'plain'))
+
+        # Connect to server
+        if SENDER_PASSWORD and SENDER_PASSWORD != "your_app_password_here":
+            server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+            server.starttls()
+            server.login(SENDER_EMAIL, SENDER_PASSWORD)
+            text = msg.as_string()
+            server.sendmail(SENDER_EMAIL, "renatodc89@gmail.com", text)
+            server.quit()
+            print("✅ Email enviado com sucesso via SMTP.")
+        else:
+            print("⚠️ Email não enviado: Senha de aplicativo não configurada (EMAIL_PASSWORD).")
+        
+        # Log for detailed debug
+        print("--------------- EMAIL LOG ---------------")
+        print(f"From: {form.email}")
+        print(f"To: renatodc89@gmail.com")
+        print(f"Subject: [OdontoPub Contato] {form.subject}")
+        print(f"Body: {body.strip()}")
+        print("-----------------------------------------")
+        
+        return {"message": "Mensagem enviada com sucesso!"}
+        
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        raise HTTPException(status_code=500, detail="Erro ao enviar mensagem.")
 
 # Enable CORS for Frontend
 app.add_middleware(

@@ -154,21 +154,37 @@ def rodar_coleta():
     if opcao == '4':
         # --- CADASTRO MANUAL INTEGRADO ---
         print("\n--- CADASTRO MANUAL DE ARTIGO ---")
-        print("Selecione o professor:")
+        print("Selecione o(s) professor(es) (separados por vírgula):")
         prof_list = df_prof[['id_professor', 'nome']].values.tolist()
         for i, (pid, pnome) in enumerate(prof_list):
             print(f"{i}) {pnome}")
         
+        professores_selecionados = []
         try:
-             idx = int(input("Número do professor: "))
-             prof_selecionado = df_prof.iloc[idx]
-             id_professor = prof_selecionado['id_professor']
-             nome_professor = prof_selecionado['nome']
-        except:
-             print("❌ Seleção inválida.")
+             indices_str = input("Números dos professores (ex: 0, 3): ")
+             indices = [int(x.strip()) for x in indices_str.split(',') if x.strip()]
+             
+             for idx in indices:
+                 if 0 <= idx < len(df_prof):
+                     prof_row = df_prof.iloc[idx]
+                     professores_selecionados.append({
+                         'id': prof_row['id_professor'],
+                         'nome': prof_row['nome']
+                     })
+                 else:
+                     print(f"⚠️ Índice {idx} inválido ignorado.")
+
+             if not professores_selecionados:
+                 print("❌ Nenhum professor válido selecionado.")
+                 return
+
+        except ValueError:
+             print("❌ Entrada inválida. Use apenas números separados por vírgula.")
              return
 
-        print(f"\nCadastrando para: {nome_professor}")
+        names_str = ", ".join([p['nome'] for p in professores_selecionados])
+        print(f"\nCadastrando para: {names_str}")
+
         titulo = input("Título do Artigo: ").strip()
         revista = input("Nome da Revista/Evento: ").strip()
         ano = input("Ano (ex: 2023): ").strip()
@@ -183,10 +199,11 @@ def rodar_coleta():
             "revista": revista, "ano": ano, "autores": autores, "abstract": abstract
         })
         
-        novos_vinculos.append({
-            "pmid": pmid_manual,
-            "id_professor": id_professor
-        })
+        for prof in professores_selecionados:
+            novos_vinculos.append({
+                "pmid": pmid_manual,
+                "id_professor": prof['id']
+            })
         
         # Garante que não entre nas buscas automáticas
         pmids_para_coletar = []
