@@ -7,6 +7,10 @@ export const api = {
         if (filters.atuacao) params.append("atuacao", filters.atuacao);
 
         const res = await fetch(`${API_URL}/professores?${params}`);
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ detail: "Network error" }));
+            throw new Error(err.detail || "Erro ao buscar professores");
+        }
         return res.json();
     },
 
@@ -18,27 +22,34 @@ export const api = {
 
     getGraph: async () => {
         const res = await fetch(`${API_URL}/graph`);
+        if (!res.ok) throw new Error("Erro ao buscar dados do grafo");
         return res.json();
     },
 
     getProjetos: async () => {
         const res = await fetch(`${API_URL}/projetos`);
+        if (!res.ok) throw new Error("Erro ao buscar projetos");
         return res.json();
     },
 
     getCollaborations: async (id) => {
         const res = await fetch(`${API_URL}/collaborations/${id}`);
-        if (!res.ok) throw new Error("Collaborations not found");
+        if (!res.ok) throw new Error("Erro ao buscar colaborações");
         return res.json();
     },
 
     getStats: async () => {
         const res = await fetch(`${API_URL}/stats`);
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({ detail: "Network error" }));
+            throw new Error(err.detail || "Erro ao buscar estatísticas");
+        }
         return res.json();
     },
 
     searchPublications: async (query) => {
         const res = await fetch(`${API_URL}/publicacoes/busca?q=${encodeURIComponent(query)}`);
+        if (!res.ok) throw new Error("Erro ao buscar publicações");
         return res.json();
     },
 

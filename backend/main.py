@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Query, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, EmailStr
+from contextlib import asynccontextmanager
 import pandas as pd
 from typing import List, Optional
 import os
@@ -9,7 +10,16 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-app = FastAPI(title="OdontoPub API", version="2.0")
+# --- Lifespan Handler ---
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load data on startup
+    load_data()
+    yield
+    # Clean up on shutdown if needed
+    pass
+
+app = FastAPI(title="OdontoPub API", version="2.0", lifespan=lifespan)
 
 # --- Models ---
 class ContactForm(BaseModel):
@@ -98,42 +108,174 @@ df_prof = None
 df_pub = None
 df_vin = None
 df_proj = None
+df_qualis = None
+
+def load_qualis():
+    """Carrega o arquivo de Qualis e cria um dicionário de ISSN -> Estrato"""
+    global df_qualis
+    qualis_path = os.path.join(BASE_DIR, "qualis_odontologia.csv")
+    if os.path.exists(qualis_path):
+        try:
+            # Lê o CSV com tratamento de BOM (utf-8-sig)
+            df = pd.read_csv(qualis_path, encoding='utf-8-sig')
+            # Normaliza ISSN (remove traços e espaços) para comparação
+            df['issn_clean'] = df['ISSN'].astype(str).str.replace('-', '').str.replace(' ', '').str.upper()
+            df_qualis = df.set_index('issn_clean')['Estrato'].to_dict()
+            print(f"[OK] Qualis carregado: {len(df_qualis)} revistas.")
+        except Exception as e:
+            print(f"[ERROR] Erro ao carregar Qualis: {e}")
+            df_qualis = {}
+    else:
+        print("[WARN] Arquivo qualis_odontologia.csv não encontrado.")
+        df_qualis = {}
+
+def get_qualis_stratum(issn_str):
+    """
+    Retorna o melhor estrato Qualis para uma string que pode conter múltiplos ISSNs 
+    separados por ';'. Tenta o match para cada um e retorna o melhor.
+    """
+    if not issn_str or issn_str == "N/A" or not df_qualis:
+        return "N/A"
+    
+    # Ordem de importância do Qualis
+    hierarchy = {"A1": 1, "A2": 2, "A3": 3, "A4": 4, "B1": 5, "B2": 6, "B3": 7, "B4": 8, "N/A": 9}
+    
+    # Divide a string em diversos ISSNs (PubMed costuma enviar Print e Electronic)
+    issns = [i.strip() for i in str(issn_str).split(';') if i.strip()]
+    
+    results = []
+    for issn in issns:
+        # Normaliza cada ISSN
+        issn_clean = issn.replace('-', '').replace(' ', '').upper()
+        res = df_qualis.get(issn_clean, "N/A")
+        results.append(res)
+    
+    if not results:
+        return "N/A"
+    
+    # Ordena os resultados pela hierarquia e pega o melhor (o que tem menor valor numérico)
+    best_stratum = min(results, key=lambda x: hierarchy.get(x, 9))
+    return best_stratum
 
 def load_data():
-    global df_prof, df_pub, df_vin, df_proj
+    global df_prof, df_pub, df_vin, df_proj, df_qualis
+    import traceback
+    
+    # Initialize with empty DataFrames to prevent crashes if files are missing or broken
+    df_prof = pd.DataFrame(columns=["id_professor", "nome", "categoria", "atuacao"])
+    df_pub = pd.DataFrame(columns=["pmid", "doi", "titulo", "revista", "ano", "autores", "abstract", "issn", "qualis"])
+    df_vin = pd.DataFrame(columns=["pmid", "id_professor"])
+    df_proj = pd.DataFrame(columns=["professor_nome", "ano", "titulo"])
+    
     try:
+        print("--- Iniciando carregamento de dados ---")
+        # Log to file for verification if print is buffered
+        with open(os.path.join(BASE_DIR, "backend_startup.log"), "a") as f:
+            f.write(f"\n[{pd.Timestamp.now()}] Iniciando carregamento de dados...\n")
+        # Load Qualis first
+        load_qualis()
+
         # Load CSVs from root directory
-        df_prof = pd.read_csv(os.path.join(BASE_DIR, "professores.csv"))
-        df_pub = pd.read_csv(os.path.join(BASE_DIR, "publicacoes.csv"))
-        df_vin = pd.read_csv(os.path.join(BASE_DIR, "vinculos.csv"))
+        prof_path = os.path.join(BASE_DIR, "professores.csv")
+        pub_path = os.path.join(BASE_DIR, "publicacoes.csv")
+        vin_path = os.path.join(BASE_DIR, "vinculos.csv")
+
+        if os.path.exists(prof_path):
+            print(f"Lendo {prof_path}...")
+            df_prof = pd.read_csv(prof_path)
+        else:
+            print(f"[WARN] {prof_path} não encontrado.")
+
+        if os.path.exists(pub_path):
+            print(f"Lendo {pub_path}...")
+            df_pub = pd.read_csv(pub_path)
+            # Converte para string para evitar erros de tipo em filtros e buscas
+            df_pub['pmid'] = df_pub['pmid'].astype(str).str.strip()
+        else:
+            print(f"[WARN] {pub_path} não encontrado.")
+
+        if os.path.exists(vin_path):
+            print(f"Lendo {vin_path}...")
+            df_vin = pd.read_csv(vin_path)
+            
+            # Garantir integridade referencial (remover órfãos)
+            if not df_pub.empty and not df_vin.empty:
+                original_count = len(df_vin)
+                # Converte para string para garantir match
+                df_vin['pmid'] = df_vin['pmid'].astype(str).str.strip()
+                pub_pmids = set(df_pub['pmid'].astype(str).str.strip().unique())
+                
+                df_vin = df_vin[df_vin['pmid'].isin(pub_pmids)]
+                removed = original_count - len(df_vin)
+                if removed > 0:
+                    print(f"[DATA INTEGRITY] Removidos {removed} vínculos órfãos (PMIDs não encontrados em publicacoes.csv).")
+        else:
+            print(f"[WARN] {vin_path} não encontrado.")
         
         # Load Projects if exists
         proj_path = os.path.join(BASE_DIR, "projetos.csv")
         if os.path.exists(proj_path):
+             print(f"Lendo {proj_path}...")
              df_proj = pd.read_csv(proj_path)
              df_proj = df_proj.fillna("")
         else:
+             print("Aviso: projetos.csv não encontrado.")
              df_proj = pd.DataFrame(columns=["professor_nome", "ano", "titulo"])
         
         # Ensure new columns exist even if CSV is old format (safety)
-        if 'linhas_pesquisas' not in df_prof.columns:
-            df_prof['linhas_pesquisas'] = ""
         if 'atuacao' not in df_prof.columns:
             df_prof['atuacao'] = ""
+        
+        # Ensure ISSN column exists in publications
+        if 'issn' not in df_pub.columns:
+            df_pub['issn'] = "N/A"
+
+        # Apply Qualis to Publications (New column 'qualis')
+        print("Mapeando Qualis para publicações...")
+        df_pub['qualis'] = df_pub['issn'].apply(get_qualis_stratum)
             
         # Helper: Fill NaNs
         df_prof = df_prof.fillna("")
         df_pub = df_pub.fillna("")
         
+        # --- Calculate Per-Professor Qualis Stats ---
+        print("Calculando estatísticas de Qualis por professor...")
+        qualis_stats_list = []
+        for _, prof in df_prof.iterrows():
+            prof_id = prof['id_professor']
+            # Find pubs for this professor
+            prof_vin = df_vin[df_vin['id_professor'] == prof_id]
+            prof_pmids = prof_vin['pmid'].astype(str).tolist()
+            prof_pubs = df_pub[df_pub['pmid'].astype(str).isin(prof_pmids)]
+            
+            # Count Qualis
+            counts = prof_pubs['qualis'].value_counts().to_dict()
+            # Ensure keys
+            stats = {
+                "A1": int(counts.get("A1", 0)),
+                "A2": int(counts.get("A2", 0)),
+                "A3": int(counts.get("A3", 0)),
+                "A4": int(counts.get("A4", 0)),
+                "B1": int(counts.get("B1", 0)),
+                "B2": int(counts.get("B2", 0)),
+                "B3": int(counts.get("B3", 0)),
+                "B4": int(counts.get("B4", 0)),
+                "N/A": int(counts.get("N/A", 0))
+            }
+            qualis_stats_list.append(stats)
+        
+        df_prof['qualis_stats'] = qualis_stats_list
+        
         # SORT PROFESSORS ALPHABETICALLY
-        df_prof = df_prof.sort_values(by="nome").reset_index(drop=True)
+        if not df_prof.empty:
+            df_prof = df_prof.sort_values(by="nome").reset_index(drop=True)
+        print("[OK] Dados carregados com sucesso!")
         
     except Exception as e:
-        print(f"Error loading data: {e}")
+        print(f"[ERROR] ERRO CRÍTICO no carregamento de dados: {e}")
+        traceback.print_exc()
+        # Fallback empty data is already set at start of function
 
-@app.on_event("startup")
-async def startup_event():
-    load_data()
 
 @app.get("/")
 def read_root():
@@ -371,7 +513,6 @@ def get_projetos():
                 "id_professor": prof['id_professor'],
                 "nome": name,
                 "atuacao": prof['atuacao'],
-                "linhas_pesquisas": prof['linhas_pesquisas'],
                 "categoria": prof['categoria'],
                 "projetos": projects
             })
@@ -389,10 +530,42 @@ def get_stats():
     if df_prof is None or df_pub is None:
         raise HTTPException(status_code=500, detail="Data not loaded")
     
+    # 1. Qualis Distribution
+    q_counts = df_pub['qualis'].value_counts().to_dict()
+    q_dist = {
+        "A1": int(q_counts.get("A1", 0)),
+        "A2": int(q_counts.get("A2", 0)),
+        "A3": int(q_counts.get("A3", 0)),
+        "A4": int(q_counts.get("A4", 0)),
+        "B1": int(q_counts.get("B1", 0)),
+        "B2": int(q_counts.get("B2", 0)),
+        "B3": int(q_counts.get("B3", 0)),
+        "B4": int(q_counts.get("B4", 0)),
+        "N/A": int(q_counts.get("N/A", 0))
+    }
+
+    # 2. Top Journals
+    top_journals = df_pub['revista'].value_counts().head(20).to_dict()
+
+    # 3. Publications by Year (Evolution)
+    try:
+        years = df_pub['ano'].value_counts().sort_index().to_dict()
+    except:
+        years = {}
+
+    # 4. Top 15 Researchers (by total publications)
+    # Join vinculos with professores to get names
+    df_merged = pd.merge(df_vin, df_prof[['id_professor', 'nome']], on='id_professor')
+    top_researchers = df_merged['nome'].value_counts().head(15).to_dict()
+
     return {
         "total_professores": len(df_prof),
         "total_publicacoes": len(df_pub['pmid'].unique()),
-        "total_projetos": len(df_proj) if df_proj is not None else 0
+        "total_projetos": len(df_proj) if df_proj is not None else 0,
+        "qualis_distribution": q_dist,
+        "top_journals": top_journals,
+        "publications_by_year": years,
+        "top_researchers": top_researchers
     }
 
 @app.get("/publicacoes/busca")

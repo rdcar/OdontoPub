@@ -189,21 +189,19 @@ export default function Projects() {
 
                             <div className="flex-1 overflow-y-auto p-6 space-y-8 bg-white dark:bg-slate-800">
                                 {/* Research Lines */}
-                                {selectedProfessor.linhas_pesquisas && (
-                                    <section>
-                                        <h4 className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                            <div className="w-1.5 h-4 bg-emerald-500 rounded-full"></div>
-                                            Linhas de Pesquisa
-                                        </h4>
-                                        <div className="flex flex-wrap gap-2">
-                                            {selectedProfessor.linhas_pesquisas.split(';').map((line, i) => (
-                                                <div key={i} className="px-4 py-2 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-700 dark:text-slate-300 font-medium">
-                                                    {line.trim()}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </section>
-                                )}
+                                <section>
+                                    <h4 className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                        <div className="w-1.5 h-4 bg-emerald-500 rounded-full"></div>
+                                        Áreas de Atuação
+                                    </h4>
+                                    <div className="flex flex-wrap gap-2">
+                                        {selectedProfessor.atuacao && selectedProfessor.atuacao.split(';').map((area, i) => (
+                                            <div key={i} className="px-4 py-2 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-xl text-sm text-slate-700 dark:text-slate-300 font-medium">
+                                                {area.trim()}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
 
                                 {/* Projects */}
                                 <section>

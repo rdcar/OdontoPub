@@ -5,6 +5,7 @@ import ProfessorDetail from './pages/ProfessorDetail';
 import Network from './pages/Network';
 import Projects from './pages/Projects';
 import Resources from './pages/Resources';
+import ImpactDashboard from './pages/ImpactDashboard';
 import Contact from './pages/Contact';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/projetos" element={<Projects />} />
           <Route path="/network" element={<Network />} />
           <Route path="/recursos" element={<Resources />} />
+          <Route path="/impacto" element={<ImpactDashboard />} />
           <Route path="/contato" element={<Contact />} />
         </Routes>
       </Layout>

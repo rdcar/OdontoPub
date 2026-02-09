@@ -2,32 +2,32 @@
 
 O **OdontoPub** é um dashboard analítico e interativo desenvolvido em **React, Tailwind CSS, FastAPI e Python**, projetado para centralizar, monitorar e visualizar a produção acadêmica do corpo docente do Departamento de Odontologia da Universidade Federal do Rio Grande do Norte (UFRN).
 
-O projeto resolve o problema da **dispersão de informações**, oferecendo aos alunos e pesquisadores uma interface única para identificar linhas de pesquisa, encontrar orientadores e acompanhar a evolução científica do departamento.
+O projeto resolve o problema da **dispersão de informações**, oferecendo aos alunos e pesquisadores uma interface única para identificar linhas de pesquisa, encontrar orientadores, explorar redes de colaboração e acompanhar a evolução científica do departamento. Há também uma central de ferramentas úteis para a vida acadêmica, incluindo acesso à literatura, metodologia e estatística, normatização e gestão de referências.
 
 ---
 
-## 🚀 Principais Funcionalidades
+## Principais Funcionalidades
 
-### 📊 Dashboard de Estatísticas
+### Dashboard de Estatísticas
 Visualização centralizada com indicadores de impacto, incluindo o total de publicações únicas do departamento, áreas de atuação e linhas de pesquisa ativas.
 
-### 🛠️ Recursos Úteis e Apoio ao Pesquisador
+### Recursos Úteis e Apoio ao Pesquisador
 Uma central de ferramentas essenciais para a vida acadêmica, incluindo:
 *   **Acesso à Literatura:** Links diretos para CAPES, BVS, SciELO e LILACS.
 *   **Metodologia e Estatística:** Ferramentas para escolha de testes, cálculo amostral (G*Power) e alternativas ao SPSS (Jamovi).
 *   **Normatização:** Guias ABNT/UFRN e Vancouver.
 *   **Gestão de Referências:** Acesso rápido ao Zotero, Mendeley e EndNote.
 
-### 📧 Canal de Contato
+### Canal de Contato
 Formulário integrado para reporte de erros, sugestões ou dúvidas, com envio direto para a administração do sistema.
 
-### 🔍 Busca Global de Publicações
+### Busca Global de Publicações
 Motor de busca avançado que permite localizar artigos em toda a base de dados por Título, Autores, Ano, Revista, PMID ou DOI.
 
-### 🌐 Rede de Colaboração
+### Rede de Colaboração
 Visualização interativa baseada em grafos que mapeia as conexões científicas entre os professores.
 
-### 📚 Linhas e Projetos de Pesquisa
+### Linhas e Projetos de Pesquisa
 Painel dedicado para explorar os projetos científicos em andamento ou concluídos.
 
 ---
@@ -45,7 +45,7 @@ Painel dedicado para explorar os projetos científicos em andamento ou concluíd
 
 ---
 
-## 💻 Como Executar o Projeto
+## Como Executar o Projeto
 
 ### **1. Backend**
 ```bash

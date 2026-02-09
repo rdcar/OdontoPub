@@ -21,16 +21,19 @@ function LayoutContent({ children }) {
                                     Início
                                 </Link>
                                 <Link to="/projetos" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border-b-2 border-transparent hover:border-sky-500">
-                                    <FolderKanban className="w-4 h-4 mr-2 text-emerald-500" />
                                     Projetos de Pesquisa
                                 </Link>
-                                <Link to="/recursos" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border-b-2 border-transparent hover:border-sky-500">
-                                    <Wrench className="w-4 h-4 mr-2 text-violet-500" />
-                                    Recursos Úteis
+                                <Link to="/impacto" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border-b-2 border-transparent hover:border-sky-500">
+                                    <Activity className="w-4 h-4 mr-2 text-rose-500" />
+                                    Impacto
                                 </Link>
                                 <Link to="/network" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border-b-2 border-transparent hover:border-sky-500">
                                     <Network className="w-4 h-4 mr-2 text-sky-500" />
                                     Rede de Colaboração
+                                </Link>
+                                <Link to="/recursos" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border-b-2 border-transparent hover:border-sky-500">
+                                    <Wrench className="w-4 h-4 mr-2 text-violet-500" />
+                                    Recursos Úteis
                                 </Link>
                                 <Link to="/contato" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border-b-2 border-transparent hover:border-sky-500">
                                     <Mail className="w-4 h-4 mr-2 text-rose-500" />

@@ -17,7 +17,7 @@ export default function ProfessorCard({ professor }) {
                 <div className="p-4 flex items-center space-x-4">
                     <div className="flex-shrink-0">
                         {/* Photo Fallback */}
-                        <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-600">
+                        <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-600 relative">
                             {imgError ? (
                                 <User className="w-8 h-8 text-slate-400" />
                             ) : (
@@ -31,7 +31,7 @@ export default function ProfessorCard({ professor }) {
                         </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-sky-600 dark:text-sky-400 truncate">
+                        <p className="text-sm font-medium text-sky-600 dark:text-sky-400 truncate flex items-center gap-2">
                             {professor.categoria}
                         </p>
                         <p className="text-lg font-bold text-slate-900 dark:text-slate-100 line-clamp-2 leading-tight group-hover:text-sky-700 dark:group-hover:text-sky-400">

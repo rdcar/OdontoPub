@@ -55,6 +55,29 @@ export default function ProfessorDetail() {
                             {data.categoria}
                         </span>
                         <h1 className="text-3xl font-bold text-slate-900 dark:text-white mt-2">{data.nome}</h1>
+
+                        {/* Qualis Summary Badge */}
+                        {data.qualis_stats && (data.qualis_stats.A1 > 0 || data.qualis_stats.A2 > 0) && (
+                            <div className="mt-3 flex items-center gap-3">
+                                <div className="bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 px-3 py-1.5 rounded-xl border border-amber-200 dark:border-amber-800/50 shadow-sm flex items-center gap-2">
+                                    <div className="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+                                        ★
+                                    </div>
+                                    <div>
+                                        <div className="text-[10px] uppercase font-bold tracking-tighter opacity-70">Impacto Qualis</div>
+                                        <div className="text-sm font-black leading-none">
+                                            {data.qualis_stats.A1 + data.qualis_stats.A2} Publicações A1/A2
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="group relative cursor-help">
+                                    <div className="w-5 h-5 rounded-full border border-slate-300 dark:border-slate-600 flex items-center justify-center text-slate-400 text-[10px] font-bold">?</div>
+                                    <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-slate-800 text-white text-[11px] rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10 border border-slate-700">
+                                        Esta métrica representa o número de artigos publicados em periódicos de <strong>Excelência Internacional (A1 e A2)</strong>, conforme os critérios oficiais da CAPES.
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Areas */}
@@ -83,14 +106,14 @@ export default function ProfessorDetail() {
                     )}
 
                     {/* Research Lines */}
-                    {data.linhas_pesquisas && (
+                    {data.atuacao && (
                         <div className="p-4 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-600">
                             <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-200 mb-2 flex items-center">
                                 <BookOpen className="w-4 h-4 mr-2 text-sky-500" />
-                                Linhas de Pesquisa
+                                Áreas de Atuação
                             </h3>
                             <ul className="list-disc list-inside text-sm text-slate-600 dark:text-slate-400 space-y-1">
-                                {data.linhas_pesquisas.split(';').map((l, i) => (
+                                {data.atuacao.split(';').map((l, i) => (
                                     <li key={i}>{l.trim()}</li>
                                 ))}
                             </ul>
@@ -155,7 +178,17 @@ function PublicationItem({ pub }) {
                 <div className="flex-1">
                     <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">{pub.ano} • {pub.revista}</div>
                     <h3 className="font-semibold text-slate-900 dark:text-slate-100">{pub.titulo}</h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-300 mt-1 line-clamp-1">{pub.autores}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                        <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-1">{pub.autores}</p>
+                        {pub.qualis && pub.qualis !== "N/A" && (
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${['A1', 'A2', 'A3', 'A4'].includes(pub.qualis)
+                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-400'
+                                : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
+                                }`}>
+                                Qualis {pub.qualis}
+                            </span>
+                        )}
+                    </div>
 
                     <div className="flex gap-3 mt-3 text-sm">
                         {pub.doi !== 'N/A' && (

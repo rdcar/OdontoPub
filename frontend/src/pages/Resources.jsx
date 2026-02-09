@@ -1,3 +1,4 @@
+import React from 'react';
 import { ExternalLink, Calculator, PenTool, Database, FileText, Wrench } from 'lucide-react';
 
 export default function Resources() {
@@ -12,7 +13,7 @@ export default function Resources() {
                     <div className="flex-1">
                         <h1 className="text-2xl font-bold mb-2">Recursos Úteis</h1>
                         <p className="text-violet-50 text-sm leading-relaxed max-w-3xl">
-                            Uma coleção curada de ferramentas essenciais para o pesquisador. Acesse bases de dados, softwares estatísticos, gerenciadores de referência e guias de normalização.
+                            Uma coleção curada de ferramentas e informações essenciais para o aluno de graduação e pesquisador. Acesse bases de dados, softwares estatísticos, gerenciadores de referência e guias de normalização.
                         </p>
                     </div>
                 </div>
@@ -47,6 +48,41 @@ export default function Resources() {
                             title="LILACS"
                             description="Literatura Latino-Americana e do Caribe em Ciências da Saúde."
                             link="https://lilacs.bvsalud.org/"
+                        />
+                    </div>
+                </section>
+
+                {/* Escrita Acadêmica e Ética */}
+                <section className="space-y-4">
+                    <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                        <PenTool className="w-5 h-5 text-violet-600 dark:text-violet-400" />
+                        Escrita Acadêmica, Estilo e Normalização
+                    </h2>
+                    <div className="grid gap-4">
+                        <ResourceCard
+                            title="Plataforma Brasil"
+                            description="Base nacional e unificada de registros de pesquisas envolvendo seres humanos (CEP/CONEP)."
+                            link="https://plataformabrasil.saude.gov.br/login.jsf"
+                        />
+                        <ResourceCard
+                            title="Equator Network"
+                            description="Diretrizes internacionais para escrita de artigos científicos (CONSORT, PRISMA, STROBE)."
+                            link="https://www.equator-network.org/"
+                        />
+                        <ResourceCard
+                            title="Normas ABNT (UFRN)"
+                            description="Guia de normalização e templates para TCCs e Artigos da BCZM (UFRN)."
+                            link="https://sisbi.ufrn.br/biblioteca/bczm/orientacoes/trabalhosacademicos"
+                        />
+                        <ResourceCard
+                            title="Normas ABNT - Download de estilo para Microsoft Word"
+                            description="Configurar Estilo ABNT no Microsoft Word"
+                            link="https://normas-abnt.espm.br/index.php?title=Gerenciando_refer%C3%AAncias"
+                        />
+                        <ResourceCard
+                            title="Estilo Vancouver (para periódicos internacionais)"
+                            description="Citing Medicine: The NLM Style Guide for Authors, Editors, and Publishers."
+                            link="https://www.ufrgs.br/bibicbs/vancouver/"
                         />
                     </div>
                 </section>
@@ -106,35 +142,6 @@ export default function Resources() {
                     </div>
                 </section>
 
-                {/* Escrita Acadêmica e Ética */}
-                <section className="space-y-4">
-                    <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                        <PenTool className="w-5 h-5 text-violet-600 dark:text-violet-400" />
-                        Escrita Acadêmica e Normalização
-                    </h2>
-                    <div className="grid gap-4">
-                        <ResourceCard
-                            title="Plataforma Brasil"
-                            description="Base nacional e unificada de registros de pesquisas envolvendo seres humanos (CEP/CONEP)."
-                            link="https://plataformabrasil.saude.gov.br/login.jsf"
-                        />
-                        <ResourceCard
-                            title="Equator Network"
-                            description="Guias para escrita de artigos de alta qualidade (CONSORT, PRISMA, STROBE)."
-                            link="https://www.equator-network.org/"
-                        />
-                        <ResourceCard
-                            title="Normas ABNT (UFRN)"
-                            description="Guia de normalização e templates para trabalhos acadêmicos da BCZM (UFRN)."
-                            link="https://sisbi.ufrn.br/biblioteca/bczm/orientacoes/trabalhosacademicos"
-                        />
-                        <ResourceCard
-                            title="Estilo Vancouver"
-                            description="Citing Medicine: The NLM Style Guide for Authors, Editors, and Publishers."
-                            link="https://www.ufrgs.br/bibicbs/vancouver/"
-                        />
-                    </div>
-                </section>
 
             </div>
         </div>
