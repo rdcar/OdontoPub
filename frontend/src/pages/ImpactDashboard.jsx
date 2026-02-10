@@ -34,15 +34,21 @@ export default function ImpactDashboard() {
     const [error, setError] = useState(null);
     const [showInfo, setShowInfo] = useState(false);
 
+    // Filter states
+    const [filters, setFilters] = useState({
+        ano: '',
+        atuacao: ''
+    });
+
     useEffect(() => {
         loadStats();
-    }, []);
+    }, [filters]); // Reload when filters change
 
     const loadStats = async () => {
         setLoading(true);
         setError(null);
         try {
-            const data = await api.getStats();
+            const data = await api.getStats(filters);
             setStats(data);
         } catch (error) {
             console.error("Error loading stats:", error);
@@ -50,6 +56,17 @@ export default function ImpactDashboard() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleFilterChange = (e) => {
+        setFilters(prev => ({
+            ...prev,
+            [e.target.name]: e.target.value
+        }));
+    };
+
+    const clearFilters = () => {
+        setFilters({ ano: '', atuacao: '' });
     };
 
     if (loading) return <div className="p-12 text-center text-slate-500">Carregando dados de impacto...</div>;
@@ -220,7 +237,7 @@ export default function ImpactDashboard() {
                 )}
             </div>
 
-            {/* Charts Grid */}
+            {/* Charts Grid - Top Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
                 {/* 1. Qualis Distribution */}
@@ -242,7 +259,62 @@ export default function ImpactDashboard() {
                         <Line data={evolutionData} options={{ maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }} />
                     </div>
                 </div>
+            </div>
 
+            {/* Filter Bar for Detailed Analysis */}
+            <div className="bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-sky-500" />
+                    <div>
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">Análise Detalhada</h3>
+                        <p className="text-[12px] text-slate-500 dark:text-slate-400 uppercase tracking-tight">Filtre os rankings abaixo por ano e área</p>
+                    </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-2">
+                        <label className="text-base font-bold text-slate-500">Ano:</label>
+                        <select
+                            name="ano"
+                            value={filters.ano}
+                            onChange={handleFilterChange}
+                            className="text-sm font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 focus:ring-2 focus:ring-sky-500 outline-none transition-all cursor-pointer text-slate-700 dark:text-slate-200 shadow-sm"
+                        >
+                            <option value="">Todos os Anos</option>
+                            {stats.available_years?.map(year => (
+                                <option key={year} value={year}>{year}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <label className="text-sm font-bold text-slate-500">Área:</label>
+                        <select
+                            name="atuacao"
+                            value={filters.atuacao}
+                            onChange={handleFilterChange}
+                            className="text-sm font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 focus:ring-2 focus:ring-sky-500 outline-none transition-all cursor-pointer text-slate-700 dark:text-slate-200 shadow-sm min-w-[150px]"
+                        >
+                            <option value="">Todas as Áreas</option>
+                            {stats.available_areas?.map(area => (
+                                <option key={area} value={area}>{area}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {(filters.ano || filters.atuacao) && (
+                        <button
+                            onClick={clearFilters}
+                            className="text-xs font-bold text-rose-500 hover:text-rose-600 hover:underline px-2 transition-all"
+                        >
+                            Limpar Filtros
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {/* Bottom Row - Rankings */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* 3. Top Researchers */}
                 <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
                     <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">

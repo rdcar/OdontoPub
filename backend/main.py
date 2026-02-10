@@ -37,7 +37,7 @@ class ContactForm(BaseModel):
 # --- Email Configuration ---
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
-SENDER_EMAIL = os.getenv("EMAIL_USER", "renatodc89@gmail.com") 
+SENDER_EMAIL = os.getenv("EMAIL_USER") 
 SENDER_PASSWORD = os.getenv("EMAIL_PASSWORD") 
 
 # Check for crucial configuration
@@ -533,15 +533,47 @@ def get_projetos():
     return results
 
 @app.get("/stats")
-def get_stats():
+def get_stats(
+    ano: Optional[str] = None,
+    atuacao: Optional[str] = None
+):
     """
     Returns general statistics for the dashboard.
+    Supports filtering by year (ano) and area of activity (atuacao).
     """
-    if df_prof is None or df_pub is None:
+    if df_prof is None or df_pub is None or df_vin is None:
         raise HTTPException(status_code=500, detail="Data not loaded")
     
+    # Base dataframes
+    pubs = df_pub.copy()
+    profs = df_prof.copy()
+    vinculos = df_vin.copy()
+
+    # Apply filters
+    if ano and ano != "null" and ano != "":
+        try:
+            # We treat 'ano' as string in filter to match df_pub['ano'] which was cast to str or handle either
+            pubs = pubs[pubs['ano'].astype(str) == str(ano)]
+        except Exception as e:
+            print(f"Filter error (ano): {e}")
+
+    if atuacao and atuacao != "null" and atuacao != "":
+        # Filter profs first
+        profs = profs[profs['atuacao'].str.contains(atuacao, case=False, na=False)]
+        # Filter vinculos to only include these professors
+        prof_ids = set(profs['id_professor'].unique())
+        vinculos = vinculos[vinculos['id_professor'].isin(prof_ids)]
+        # BUG FIX: Filter pubs to only include PMIDs from these professors
+        valid_pmids = set(vinculos['pmid'].astype(str).unique())
+        pubs = pubs[pubs['pmid'].astype(str).isin(valid_pmids)]
+    
+    # Recalculate vinculos based on filtered pubs if year filter is applied (ensures consistency)
+    if ano:
+        valid_pmids = set(pubs['pmid'].unique())
+        vinculos = vinculos[vinculos['pmid'].astype(str).isin(valid_pmids)]
+
     # 1. Qualis Distribution
-    q_counts = df_pub['qualis'].value_counts().to_dict()
+    q_counts = pubs['qualis'].value_counts().to_dict()
     q_dist = {
         "A1": int(q_counts.get("A1", 0)),
         "A2": int(q_counts.get("A2", 0)),
@@ -555,27 +587,32 @@ def get_stats():
     }
 
     # 2. Top Journals
-    top_journals = df_pub['revista'].value_counts().head(20).to_dict()
+    top_journals = pubs['revista'].value_counts().head(20).to_dict()
 
-    # 3. Publications by Year (Evolution)
+    # 3. Publications by Year (Evolution) - UNFILTERED as per user request
     try:
-        years = df_pub['ano'].value_counts().sort_index().to_dict()
+        years_evolution = df_pub['ano'].value_counts().sort_index().to_dict()
     except:
-        years = {}
+        years_evolution = {}
 
-    # 4. Top 15 Researchers (by total publications)
-    # Join vinculos with professores to get names
-    df_merged = pd.merge(df_vin, df_prof[['id_professor', 'nome']], on='id_professor')
+    # 4. Top 15 Researchers (by total publications in the current context)
+    df_merged = pd.merge(vinculos, profs[['id_professor', 'nome']], on='id_professor')
     top_researchers = df_merged['nome'].value_counts().head(15).to_dict()
 
+    # 5. Get available years and areas for filter population
+    all_years = sorted(df_pub['ano'].unique().tolist(), reverse=True)
+    all_areas = sorted([a for a in df_prof['atuacao'].unique().tolist() if a])
+
     return {
-        "total_professores": len(df_prof),
-        "total_publicacoes": len(df_pub['pmid'].unique()),
-        "total_projetos": len(df_proj) if df_proj is not None else 0,
+        "total_professores": len(profs),
+        "total_publicacoes": len(pubs['pmid'].unique()),
+        "total_projetos": len(df_proj) if df_proj is not None else 0, # Projects aren't strictly linked to individual year filtering in this view yet
         "qualis_distribution": q_dist,
         "top_journals": top_journals,
-        "publications_by_year": years,
-        "top_researchers": top_researchers
+        "publications_by_year": years_evolution,
+        "top_researchers": top_researchers,
+        "available_years": all_years,
+        "available_areas": all_areas
     }
 
 @app.get("/publicacoes/busca")

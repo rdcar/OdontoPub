@@ -38,8 +38,12 @@ export const api = {
         return res.json();
     },
 
-    getStats: async () => {
-        const res = await fetch(`${API_URL}/stats`);
+    getStats: async (filters = {}) => {
+        const params = new URLSearchParams();
+        if (filters.ano) params.append("ano", filters.ano);
+        if (filters.atuacao) params.append("atuacao", filters.atuacao);
+
+        const res = await fetch(`${API_URL}/stats?${params}`);
         if (!res.ok) {
             const err = await res.json().catch(() => ({ detail: "Network error" }));
             throw new Error(err.detail || "Erro ao buscar estatísticas");
