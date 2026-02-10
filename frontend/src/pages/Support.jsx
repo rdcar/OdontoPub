@@ -83,7 +83,7 @@ export default function Support() {
                             Nossa principal fonte de metadados de produções científicas é o <strong>PubMed</strong>, uma base de dados biomédicos de acesso público mantida pelos Institutos Nacionais de Saúde dos Estados Unidos (NIH). Porém, nem todos os pesquisadores possuem suas produções indexadas devido à ausência de DOI e/ou de indexação de periódicos regionais/nacionais menores.
                             <br />
                             <br />
-                            Para contornar isso, o <strong>OdontoPub</strong> oferece uma solução eficiente: o <strong>download manual do template</strong> e o posterior upload dele preenchido, no sistema. Este método garante a integridade dos seus dados e é a forma mais segura e recomendada para migrar suas informações não indexadas no PubMed.
+                            Para contornar isso, o <strong>OdontoPub</strong> oferece uma solução eficiente: o <strong>download do template</strong> e posterior upload dele já preenchido pelo usuário, no sistema. Este método garante a integridade dos seus dados e é a forma mais segura e recomendada para incluir suas informações não indexadas no PubMed.
                         </div>
                     </div>
 
