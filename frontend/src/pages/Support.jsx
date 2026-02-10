@@ -276,7 +276,7 @@ export default function Support() {
                                 ) : (
                                     <>
                                         <Send className="w-5 h-5" />
-                                        Enviar Suporte
+                                        Enviar
                                     </>
                                 )}
                             </button>
