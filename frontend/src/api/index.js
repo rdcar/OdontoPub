@@ -63,5 +63,14 @@ export const api = {
         });
         if (!res.ok) throw new Error("Erro ao enviar mensagem");
         return res.json();
+    },
+
+    uploadTemplate: async (formData) => {
+        const res = await fetch(`${API_URL}/upload-template`, {
+            method: 'POST',
+            body: formData, // Fetch handles Content-Type for FormData automatically
+        });
+        if (!res.ok) throw new Error("Erro ao fazer upload do arquivo");
+        return res.json();
     }
 };

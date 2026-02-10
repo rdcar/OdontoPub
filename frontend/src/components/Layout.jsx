@@ -35,9 +35,9 @@ function LayoutContent({ children }) {
                                     <Wrench className="w-4 h-4 mr-2 text-violet-500" />
                                     Recursos Úteis
                                 </Link>
-                                <Link to="/contato" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border-b-2 border-transparent hover:border-sky-500">
+                                <Link to="/suporte" className="inline-flex items-center px-1 pt-1 text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 border-b-2 border-transparent hover:border-sky-500">
                                     <Mail className="w-4 h-4 mr-2 text-rose-500" />
-                                    Contato
+                                    Suporte
                                 </Link>
                             </div>
                         </div>

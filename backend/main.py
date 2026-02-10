@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Query, Body
+from fastapi import FastAPI, HTTPException, Query, Body, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, EmailStr
@@ -7,6 +7,8 @@ import pandas as pd
 from typing import List, Optional
 import os
 import smtplib
+import shutil
+from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -613,7 +615,41 @@ def search_publications(q: str = Query(..., min_length=2)):
             'professor_name': prof_name
         })
         
-    return formatted_results
+@app.post("/contact")
+async def contact_route(form: ContactForm):
+    """
+    Endpoint for contact form submission.
+    """
+    return await send_contact_email(form)
+
+@app.post("/upload-template")
+async def upload_template(file: UploadFile = File(...), professor_name: str = Form(...)):
+    """
+    Endpoint to receive filled CSV templates from professors.
+    """
+    if not file.filename.endswith(".csv"):
+        raise HTTPException(status_code=400, detail="Apenas arquivos .csv são permitidos")
+    
+    upload_dir = "uploads"
+    if not os.path.exists(upload_dir):
+        os.makedirs(upload_dir, exist_ok=True)
+        
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    safe_name = professor_name.replace(" ", "_").lower()
+    # Sanitize safe_name for filename (extra precaution)
+    safe_name = "".join([c for c in safe_name if c.isalnum() or c == '_'])
+    
+    filename = f"{timestamp}_{safe_name}.csv"
+    file_path = os.path.join(upload_dir, filename)
+    
+    try:
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        print(f"[UPLOAD] Template recebido: {filename} de {professor_name}")
+        return {"status": "success", "filename": filename}
+    except Exception as e:
+        print(f"[ERROR] Falha ao salvar upload: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno ao salvar arquivo")
 
 if __name__ == "__main__":
     import uvicorn
