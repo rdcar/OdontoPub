@@ -111,7 +111,7 @@ export default function Support() {
                                 <li className="flex gap-4">
                                     <span className="flex-shrink-0 w-6 h-6 bg-rose-500 text-white rounded-full text-xs font-bold flex items-center justify-center">3</span>
                                     <div className="text-sm text-slate-600 dark:text-slate-400">
-                                        Renomeie o arquivo com o seu nome completo (Ex: <code>NOME_PROFESSOR.csv</code>) para correta identificação na base de dados.
+                                        Renomeie o arquivo com o seu nome completo (Ex: <code>NOME DO PROFESSOR.csv</code>) para correta identificação na base de dados.
                                     </div>
                                 </li>
                                 <li className="flex gap-4">

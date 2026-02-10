@@ -101,7 +101,7 @@ export default function Home() {
                                 O <strong>OdontoPub</strong> é um dashboard analítico e interativo projetado para centralizar e facilitar o acesso à produção acadêmica do corpo docente do <strong>DOD/UFRN</strong>.
                                 <br />
                                 <br />
-                                O projeto resolve o problema da dispersão de informações, oferecendo aos professores e alunos uma <strong>interface unificada</strong> para identificar linhas de pesquisa, encontrar orientadores alinhados aos seus interesses, explorar redes de colaboração, acompanhar a produção científica e seu impacto, e ter acesso a recursos úteis para produção de artigos e TCCs.
+                                O projeto resolve o problema da dispersão de informações, oferecendo aos professores e, principalmente, aos alunos uma <strong>interface unificada</strong> e simples onde é possível conhecer as atuais <strong>linhas de pesquisa</strong>, encontrar <strong>orientadores</strong> alinhados aos seus interesses, explorar <strong>redes de colaboração</strong> entre professores, acompanhar a produção científica e seu <strong>impacto</strong>, e, ainda, ter acesso a <strong>recursos úteis</strong> para produção de artigos e TCCs.
                             </p>
                         </div>
                         <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 flex flex-col items-center justify-center min-w-[160px]">

@@ -191,7 +191,8 @@ def load_data():
 
         if os.path.exists(prof_path):
             print(f"Lendo {prof_path}...")
-            df_prof = pd.read_csv(prof_path)
+            # Forçamos lattes_id como string para evitar perda de precisão em números de 16 dígitos
+            df_prof = pd.read_csv(prof_path, dtype={'lattes_id': str})
         else:
             print(f"[WARN] {prof_path} não encontrado.")
 
