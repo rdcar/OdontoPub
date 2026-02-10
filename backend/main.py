@@ -11,6 +11,10 @@ import shutil
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # --- Lifespan Handler ---
 @asynccontextmanager
@@ -31,11 +35,14 @@ class ContactForm(BaseModel):
     message: str
     
 # --- Email Configuration ---
-# In a real production environment, use environment variables!
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 SENDER_EMAIL = os.getenv("EMAIL_USER", "renatodc89@gmail.com") 
-SENDER_PASSWORD = os.getenv("EMAIL_PASSWORD", "your_app_password_here") 
+SENDER_PASSWORD = os.getenv("EMAIL_PASSWORD") 
+
+# Check for crucial configuration
+if not SENDER_PASSWORD:
+    print("⚠️  AVISO: EMAIL_PASSWORD não definido nas variáveis de ambiente (.env). O envio de e-mails falhará.")
 
 @app.post("/contact")
 def send_contact_email(form: ContactForm):
