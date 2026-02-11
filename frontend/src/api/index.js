@@ -1,4 +1,15 @@
 export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+export const getProfessorPhotoUrl = (name) => {
+    if (!name) return "";
+    const normalizedName = name
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9\s_]/g, "") // Basic cleanup
+        .split(' ')
+        .join('_');
+    return `${API_URL}/assets/${normalizedName}.jpg`;
+};
 
 export const api = {
     getProfessores: async (filters = {}) => {

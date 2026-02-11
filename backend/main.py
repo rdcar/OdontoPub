@@ -38,8 +38,8 @@ class ContactForm(BaseModel):
 # Para Railway (ou outro cloud que bloqueie porta 587), use SMTP_SSL na porta 465.
 # Se migrar para VPS próprio, descomente a seção STARTTLS e comente a seção SSL.
 SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT_SSL = 465      # Porta SSL (Railway-compatible)
-# SMTP_PORT_TLS = 587    # Porta STARTTLS (para VPS/local — descomente se precisar)
+# SMTP_PORT_SSL = 465      # Porta SSL (Railway-compatible)
+SMTP_PORT_TLS = 587    # Porta STARTTLS (para VPS/local — descomente se precisar)
 SENDER_EMAIL = os.getenv("EMAIL_USER") 
 SENDER_PASSWORD = os.getenv("EMAIL_PASSWORD") 
 
@@ -73,24 +73,27 @@ def send_contact_email(form: ContactForm):
 
         # Connect to server
         if SENDER_PASSWORD and SENDER_PASSWORD != "your_app_password_here":
-            # === MÉTODO ATUAL: SMTP_SSL (porta 465) ===
-            # Compatível com Railway e outros cloud providers que bloqueiam porta 587.
-            server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT_SSL)
-            server.login(SENDER_EMAIL, SENDER_PASSWORD)
-            text = msg.as_string()
-            server.sendmail(SENDER_EMAIL, "renatodc89@gmail.com", text)
-            server.quit()
+            # O código abaixo detecta qual porta foi descomentada acima e usa o protocolo correto.
+            # Se SMTP_PORT_SSL estiver definido, usa SSL (Porta 465).
+            # Se apenas SMTP_PORT_TLS estiver definido, usa STARTTLS (Porta 587).
             
-            # === MÉTODO ALTERNATIVO: STARTTLS (porta 587) ===
-            # Descomente este bloco e comente o bloco SSL acima se migrar para VPS.
-            # server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT_TLS)
-            # server.starttls()
-            # server.login(SENDER_EMAIL, SENDER_PASSWORD)
-            # text = msg.as_string()
-            # server.sendmail(SENDER_EMAIL, "renatodc89@gmail.com", text)
-            # server.quit()
-            
-            print("✅ Email enviado com sucesso via SMTP_SSL (porta 465).")
+            try:
+                if 'SMTP_PORT_SSL' in locals() or 'SMTP_PORT_SSL' in globals():
+                    server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT_SSL)
+                    server.login(SENDER_EMAIL, SENDER_PASSWORD)
+                    print(f"✅ Email enviado via SMTP_SSL (porta {SMTP_PORT_SSL}).")
+                else:
+                    server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT_TLS)
+                    server.starttls()
+                    server.login(SENDER_EMAIL, SENDER_PASSWORD)
+                    print(f"✅ Email enviado via STARTTLS (porta {SMTP_PORT_TLS}).")
+                
+                text = msg.as_string()
+                server.sendmail(SENDER_EMAIL, "renatodc89@gmail.com", text)
+                server.quit()
+            except NameError as ne:
+                print(f"⚠️ Erro de configuração: Nenhuma porta SMTP definida (SSL ou TLS). {ne}")
+                raise HTTPException(status_code=500, detail="Configuração de email incompleta.")
         else:
             print("⚠️ Email não enviado: Senha de aplicativo não configurada (EMAIL_PASSWORD).")
         

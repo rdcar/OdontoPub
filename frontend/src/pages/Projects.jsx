@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { api, API_URL } from '../api';
+import { api, API_URL, getProfessorPhotoUrl } from '../api';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Calendar, ArrowRight, Search, Users, FileText, FolderKanban } from 'lucide-react';
 
@@ -21,7 +21,7 @@ function ProfessorListItem({ prof, isSelected, onSelect }) {
                         <Users className="w-5 h-5 text-slate-400" />
                     ) : (
                         <img
-                            src={`${API_URL}/assets/${prof.nome.toLowerCase().split(' ').join('_')}.jpg`}
+                            src={getProfessorPhotoUrl(prof.nome)}
                             onError={() => setImgError(true)}
                             alt=""
                             className="w-full h-full object-cover"
@@ -166,7 +166,7 @@ export default function Projects() {
                                                 <Users className="w-8 h-8 text-slate-400" />
                                             ) : (
                                                 <img
-                                                    src={`${API_URL}/assets/${selectedProfessor.nome.toLowerCase().split(' ').join('_')}.jpg`}
+                                                    src={getProfessorPhotoUrl(selectedProfessor.nome)}
                                                     onError={() => setSelectedImgError(true)}
                                                     alt=""
                                                     className="w-full h-full object-cover"

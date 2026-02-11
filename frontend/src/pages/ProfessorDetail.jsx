@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { api, API_URL } from '../api';
+import { api, API_URL, getProfessorPhotoUrl } from '../api';
 import { ChevronDown, ChevronUp, BookOpen, User, ArrowLeft, FileText } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
@@ -42,7 +42,7 @@ export default function ProfessorDetail() {
                         <User className="w-16 h-16 text-slate-400" />
                     ) : (
                         <img
-                            src={`${API_URL}/assets/${data.nome.toLowerCase().split(' ').join('_')}.jpg`}
+                            src={getProfessorPhotoUrl(data.nome)}
                             onError={() => setImgError(true)}
                             alt={data.nome}
                             className="w-full h-full object-cover"

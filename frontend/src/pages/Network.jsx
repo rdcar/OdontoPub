@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import { api, API_URL } from '../api';
+import { api, API_URL, getProfessorPhotoUrl } from '../api';
 import { useNavigate } from 'react-router-dom';
 import { Search, Users, FileText, ExternalLink, ChevronDown, ChevronUp, X } from 'lucide-react';
 
@@ -20,7 +20,7 @@ export function NetworkProfessorItem({ prof, isSelected, onSelect }) {
                         <Users className="w-6 h-6 text-slate-400" />
                     ) : (
                         <img
-                            src={`${API_URL}/assets/${prof.nome.toLowerCase().split(' ').join('_')}.jpg`}
+                            src={getProfessorPhotoUrl(prof.nome)}
                             onError={() => setImgError(true)}
                             alt=""
                             className="w-full h-full object-cover"
@@ -47,7 +47,7 @@ function CollabIconWrapper({ collab }) {
         <Users className="w-7 h-7 text-slate-400" />
     ) : (
         <img
-            src={`${API_URL}/assets/${collab.nome.toLowerCase().split(' ').join('_')}.jpg`}
+            src={getProfessorPhotoUrl(collab.nome)}
             onError={() => setImgError(true)}
             alt=""
             className="w-full h-full object-cover"
@@ -104,7 +104,7 @@ export default function Network() {
     });
 
     return (
-        <div className="flex flex-col h-[92vh] space-y-4 animate-diagonal-zoom">
+        <div className="flex flex-col md:h-[92vh] space-y-4 animate-diagonal-zoom">
             {/* Header Card */}
             <div className="bg-gradient-to-r from-sky-500 to-cyan-600 dark:from-sky-700 dark:to-cyan-800 rounded-2xl p-6 text-white shadow-lg flex-shrink-0 transition-all">
                 <div className="flex items-start gap-4">
@@ -137,7 +137,7 @@ export default function Network() {
             {/* Main Content - Two Panel Layout */}
             <div className="flex-1 flex flex-col md:flex-row gap-4 min-h-0">
                 {/* Left Panel - Professor Selection */}
-                <div className="md:w-1/3 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col transition-colors">
+                <div className="md:w-1/3 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col transition-colors max-h-[40vh] md:max-h-none">
                     {/* Header */}
                     <div className="p-5 border-b border-slate-100 dark:border-slate-700 bg-gradient-to-br from-sky-50 to-white dark:from-slate-800 dark:to-slate-800">
                         <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 mb-4">
@@ -188,7 +188,7 @@ export default function Network() {
                 </div>
 
                 {/* Right Panel - Collaboration View */}
-                <div className="md:flex-1 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col transition-colors">
+                <div className="md:flex-1 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col transition-colors min-h-[50vh] md:min-h-0">
                     {!selectedProfessor ? (
                         <div className="flex-1 flex items-center justify-center text-center p-8">
                             <div>
@@ -218,7 +218,7 @@ export default function Network() {
                                             <Users className="w-10 h-10 text-slate-400" />
                                         ) : (
                                             <img
-                                                src={`${API_URL}/assets/${selectedProfessor.nome.toLowerCase().split(' ').join('_')}.jpg`}
+                                                src={getProfessorPhotoUrl(selectedProfessor.nome)}
                                                 onError={() => setSelectedImgError(true)}
                                                 alt=""
                                                 className="w-full h-full object-cover"
