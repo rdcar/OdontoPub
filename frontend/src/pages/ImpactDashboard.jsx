@@ -177,13 +177,13 @@ export default function ImpactDashboard() {
         <div className="space-y-8 animate-diagonal-zoom pb-12">
             {/* Header */}
             <div className="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 text-white shadow-lg">
-                <div className="flex items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4">
                     <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
                         <Activity className="w-6 h-6 text-white" />
                     </div>
                     <div>
                         <h1 className="text-2xl font-bold">Estatísticas de Impacto</h1>
-                        <p className="text-emerald-50 text-sm">
+                        <p className="text-emerald-50 text-sm leading-relaxed">
                             Análise quantitativa e qualitativa da produção científica do DOD/UFRN.
                         </p>
                     </div>

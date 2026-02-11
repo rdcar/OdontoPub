@@ -90,11 +90,11 @@ export default function Home() {
         <div className="flex flex-col space-y-8 animate-diagonal-zoom">
             {/* Hero / Warning Section */}
             <div className="bg-gradient-to-r from-sky-500 to-indigo-600 rounded-2xl p-6 text-white shadow-lg overflow-hidden flex-shrink-0">
-                <div className="flex items-start gap-4">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4">
                     <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
                         <BookOpenText className="w-8 h-8 text-white" />
                     </div>
-                    <div className="flex flex-1 flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="flex flex-1 flex-col md:flex-row md:items-center justify-between gap-4 w-full">
                         <div>
                             <h1 className="text-2xl font-bold mb-2">Produção Científica - DOD/UFRN</h1>
                             <p className="text-sky-50 text-sm leading-relaxed max-w-2xl">
@@ -104,7 +104,7 @@ export default function Home() {
                                 O projeto resolve o problema da dispersão de informações, oferecendo aos professores e, principalmente, aos alunos uma <strong>interface unificada</strong> e simples onde é possível conhecer as atuais <strong>linhas de pesquisa</strong>, encontrar <strong>orientadores</strong> alinhados aos seus interesses, explorar <strong>redes de colaboração</strong> entre professores, acompanhar a produção científica e seu <strong>impacto</strong>, e, ainda, ter acesso a <strong>recursos úteis</strong> para produção de artigos e TCCs.
                             </p>
                         </div>
-                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 flex flex-col items-center justify-center min-w-[160px]">
+                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 border border-white/20 flex flex-col items-center justify-center min-w-[160px] mx-auto sm:mx-0">
                             <span className="text-sky-100 text-[10px] uppercase font-bold tracking-widest mb-1">Total Produção</span>
                             <span className="text-3xl font-black text-white">{stats?.total_publicacoes || 0}</span>
                             <span className="text-sky-200 text-xs">Artigos</span>

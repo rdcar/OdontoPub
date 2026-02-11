@@ -107,7 +107,7 @@ export default function Network() {
         <div className="flex flex-col md:h-[92vh] space-y-4 animate-diagonal-zoom">
             {/* Header Card */}
             <div className="bg-gradient-to-r from-sky-500 to-cyan-600 dark:from-sky-700 dark:to-cyan-800 rounded-2xl p-6 text-white shadow-lg flex-shrink-0 transition-all">
-                <div className="flex items-start gap-4">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4">
                     <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
                         <Users className="w-8 h-8 text-white" />
                     </div>
@@ -116,7 +116,7 @@ export default function Network() {
                         <p className="text-sky-100 text-sm leading-relaxed max-w-3xl">
                             Explore as conexões entre os docentes através de suas publicações científicas em coautoria. Selecione um professor no painel à esquerda para visualizar seus colaboradores, o número de publicações compartilhadas e os detalhes de cada artigo em comum.
                         </p>
-                        <div className="mt-3 flex flex-wrap gap-4 text-xs text-sky-200">
+                        <div className="mt-3 flex flex-wrap justify-center sm:justify-start gap-4 text-xs text-sky-200">
                             <span className="flex items-center gap-1">
                                 <span className="w-2 h-2 bg-white rounded-full"></span>
                                 Selecione um docente
