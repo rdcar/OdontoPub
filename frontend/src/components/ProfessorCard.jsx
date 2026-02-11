@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { User, BookOpen, FileText } from 'lucide-react';
+import { API_URL } from '../api';
 
 export default function ProfessorCard({ professor }) {
     const [imgError, setImgError] = useState(false);
@@ -22,7 +23,7 @@ export default function ProfessorCard({ professor }) {
                                 <User className="w-8 h-8 text-slate-400" />
                             ) : (
                                 <img
-                                    src={`http://localhost:8000/assets/${professor.nome.toLowerCase().split(' ').join('_')}.jpg`}
+                                    src={`${API_URL}/assets/${professor.nome.toLowerCase().split(' ').join('_')}.jpg`}
                                     onError={() => setImgError(true)}
                                     alt={professor.nome}
                                     className="w-full h-full object-cover"

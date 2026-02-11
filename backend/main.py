@@ -696,6 +696,10 @@ async def upload_template(file: UploadFile = File(...), professor_name: str = Fo
         print(f"[ERROR] Falha ao salvar upload: {e}")
         raise HTTPException(status_code=500, detail="Erro interno ao salvar arquivo")
 
+# --- Static Files ---
+# Serve professor photos, guideline images and templates from /assets
+app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

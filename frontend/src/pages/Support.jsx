@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Mail, Send, CheckCircle, AlertCircle, Download, Upload, ExternalLink, Info, FileText, X } from 'lucide-react';
-import { api } from '../api';
+import { api, API_URL } from '../api';
 
 export default function Support() {
     const [formData, setFormData] = useState({
@@ -99,7 +99,7 @@ export default function Support() {
                                 <li className="flex gap-4">
                                     <span className="flex-shrink-0 w-6 h-6 bg-rose-500 text-white rounded-full text-xs font-bold flex items-center justify-center">1</span>
                                     <div className="text-sm text-slate-600 dark:text-slate-400">
-                                        Baixe o nosso <a href="http://localhost:8000/assets/template_publicacoes.csv" className="text-rose-600 dark:text-rose-400 font-bold hover:underline inline-flex items-center gap-1"><Download className="w-3 h-3" /> template oficial</a> em formato CSV.
+                                        Baixe o nosso <a href={`${API_URL}/assets/template_publicacoes.csv`} className="text-rose-600 dark:text-rose-400 font-bold hover:underline inline-flex items-center gap-1"><Download className="w-3 h-3" /> template oficial</a> em formato CSV.
                                     </div>
                                 </li>
                                 <li className="flex gap-4">
@@ -131,15 +131,15 @@ export default function Support() {
                             <div className="space-y-4">
                                 <div
                                     className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm cursor-zoom-in hover:border-rose-400 dark:hover:border-rose-500 transition-colors"
-                                    onClick={() => setSelectedImage("http://localhost:8000/assets/template_guideline1.png")}
+                                    onClick={() => setSelectedImage(`${API_URL}/assets/template_guideline1.png`)}
                                 >
-                                    <img src="http://localhost:8000/assets/template_guideline1.png" alt="Guideline 1" className="w-full h-auto" />
+                                    <img src={`${API_URL}/assets/template_guideline1.png`} alt="Guideline 1" className="w-full h-auto" />
                                 </div>
                                 <div
                                     className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm cursor-zoom-in hover:border-rose-400 dark:hover:border-rose-500 transition-colors"
-                                    onClick={() => setSelectedImage("http://localhost:8000/assets/template_guideline2.png")}
+                                    onClick={() => setSelectedImage(`${API_URL}/assets/template_guideline2.png`)}
                                 >
-                                    <img src="http://localhost:8000/assets/template_guideline2.png" alt="Guideline 2" className="w-full h-auto" />
+                                    <img src={`${API_URL}/assets/template_guideline2.png`} alt="Guideline 2" className="w-full h-auto" />
                                 </div>
                             </div>
                         </div>

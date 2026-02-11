@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import { api } from '../api';
+import { api, API_URL } from '../api';
 import { useNavigate } from 'react-router-dom';
 import { Search, Users, FileText, ExternalLink, ChevronDown, ChevronUp, X } from 'lucide-react';
 
@@ -20,7 +20,7 @@ export function NetworkProfessorItem({ prof, isSelected, onSelect }) {
                         <Users className="w-6 h-6 text-slate-400" />
                     ) : (
                         <img
-                            src={`http://localhost:8000/assets/${prof.nome.toLowerCase().split(' ').join('_')}.jpg`}
+                            src={`${API_URL}/assets/${prof.nome.toLowerCase().split(' ').join('_')}.jpg`}
                             onError={() => setImgError(true)}
                             alt=""
                             className="w-full h-full object-cover"
@@ -47,7 +47,7 @@ function CollabIconWrapper({ collab }) {
         <Users className="w-7 h-7 text-slate-400" />
     ) : (
         <img
-            src={`http://localhost:8000/assets/${collab.nome.toLowerCase().split(' ').join('_')}.jpg`}
+            src={`${API_URL}/assets/${collab.nome.toLowerCase().split(' ').join('_')}.jpg`}
             onError={() => setImgError(true)}
             alt=""
             className="w-full h-full object-cover"
@@ -218,7 +218,7 @@ export default function Network() {
                                             <Users className="w-10 h-10 text-slate-400" />
                                         ) : (
                                             <img
-                                                src={`http://localhost:8000/assets/${selectedProfessor.nome.toLowerCase().split(' ').join('_')}.jpg`}
+                                                src={`${API_URL}/assets/${selectedProfessor.nome.toLowerCase().split(' ').join('_')}.jpg`}
                                                 onError={() => setSelectedImgError(true)}
                                                 alt=""
                                                 className="w-full h-full object-cover"
