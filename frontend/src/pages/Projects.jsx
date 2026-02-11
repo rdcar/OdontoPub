@@ -81,7 +81,7 @@ export default function Projects() {
     if (loading) return <div className="p-12 text-center text-slate-500">Carregando projetos...</div>;
 
     return (
-        <div className="flex flex-col h-[92vh] space-y-4 animate-diagonal-zoom">
+        <div className="flex flex-col md:h-[92vh] space-y-4 animate-diagonal-zoom">
             {/* Header Card */}
             <div className="bg-gradient-to-r from-emerald-500 to-teal-600 dark:from-emerald-600 dark:to-teal-700 rounded-2xl p-6 text-white shadow-lg flex-shrink-0 transition-all">
                 <div className="flex items-start gap-4">
@@ -100,7 +100,7 @@ export default function Projects() {
             {/* Main Content - Two Panel Layout */}
             <div className="flex-1 flex flex-col md:flex-row gap-4 min-h-0">
                 {/* Left Panel - Professor Selection */}
-                <div className="md:w-1/3 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col transition-colors">
+                <div className="md:w-1/3 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col transition-colors max-h-[40vh] md:max-h-none">
                     {/* Header */}
                     <div className="p-5 border-b border-slate-100 dark:border-slate-700 bg-gradient-to-br from-emerald-50 to-white dark:from-slate-800 dark:to-slate-800">
                         <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 mb-4">
@@ -142,7 +142,7 @@ export default function Projects() {
                 </div>
 
                 {/* Right Panel - Context View */}
-                <div className="md:flex-1 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col transition-colors">
+                <div className="md:flex-1 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col transition-colors min-h-[50vh] md:min-h-0">
                     {!selectedProfessor ? (
                         <div className="flex-1 flex items-center justify-center text-center p-8">
                             <div>

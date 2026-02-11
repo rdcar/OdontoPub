@@ -320,16 +320,20 @@ export default function ImpactDashboard() {
                     <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
                         <Users className="w-4 h-4" /> Principais Pesquisadores
                     </h3>
-                    <div className="h-64">
+                    <div className="h-80 sm:h-64">
                         <Bar
                             data={researchersData}
                             options={{
                                 maintainAspectRatio: false,
                                 indexAxis: 'y',
                                 plugins: {
-                                    legend: { display: false }
+                                    legend: { display: false },
+                                    tooltip: { callbacks: { title: (items) => items[0]?.label || '' } }
                                 },
-                                scales: { x: { beginAtZero: true } }
+                                scales: {
+                                    x: { beginAtZero: true },
+                                    y: { ticks: { callback: function (value) { const label = this.getLabelForValue(value); return label.length > 20 ? label.substring(0, 18) + '…' : label; } } }
+                                }
                             }}
                         />
                     </div>
@@ -340,16 +344,20 @@ export default function ImpactDashboard() {
                     <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2">
                         <BookOpen className="w-4 h-4" /> Principais Periódicos
                     </h3>
-                    <div className="h-64">
+                    <div className="h-80 sm:h-64">
                         <Bar
                             data={journalsData}
                             options={{
                                 maintainAspectRatio: false,
                                 indexAxis: 'y',
                                 plugins: {
-                                    legend: { display: false }
+                                    legend: { display: false },
+                                    tooltip: { callbacks: { title: (items) => items[0]?.label || '' } }
                                 },
-                                scales: { x: { beginAtZero: true } }
+                                scales: {
+                                    x: { beginAtZero: true },
+                                    y: { ticks: { callback: function (value) { const label = this.getLabelForValue(value); return label.length > 20 ? label.substring(0, 18) + '…' : label; } } }
+                                }
                             }}
                         />
                     </div>

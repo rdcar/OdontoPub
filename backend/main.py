@@ -35,8 +35,11 @@ class ContactForm(BaseModel):
     message: str
     
 # --- Email Configuration ---
+# Para Railway (ou outro cloud que bloqueie porta 587), use SMTP_SSL na porta 465.
+# Se migrar para VPS próprio, descomente a seção STARTTLS e comente a seção SSL.
 SMTP_SERVER = "smtp.gmail.com"
-SMTP_PORT = 587
+SMTP_PORT_SSL = 465      # Porta SSL (Railway-compatible)
+# SMTP_PORT_TLS = 587    # Porta STARTTLS (para VPS/local — descomente se precisar)
 SENDER_EMAIL = os.getenv("EMAIL_USER") 
 SENDER_PASSWORD = os.getenv("EMAIL_PASSWORD") 
 
@@ -70,13 +73,24 @@ def send_contact_email(form: ContactForm):
 
         # Connect to server
         if SENDER_PASSWORD and SENDER_PASSWORD != "your_app_password_here":
-            server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-            server.starttls()
+            # === MÉTODO ATUAL: SMTP_SSL (porta 465) ===
+            # Compatível com Railway e outros cloud providers que bloqueiam porta 587.
+            server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT_SSL)
             server.login(SENDER_EMAIL, SENDER_PASSWORD)
             text = msg.as_string()
             server.sendmail(SENDER_EMAIL, "renatodc89@gmail.com", text)
             server.quit()
-            print("✅ Email enviado com sucesso via SMTP.")
+            
+            # === MÉTODO ALTERNATIVO: STARTTLS (porta 587) ===
+            # Descomente este bloco e comente o bloco SSL acima se migrar para VPS.
+            # server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT_TLS)
+            # server.starttls()
+            # server.login(SENDER_EMAIL, SENDER_PASSWORD)
+            # text = msg.as_string()
+            # server.sendmail(SENDER_EMAIL, "renatodc89@gmail.com", text)
+            # server.quit()
+            
+            print("✅ Email enviado com sucesso via SMTP_SSL (porta 465).")
         else:
             print("⚠️ Email não enviado: Senha de aplicativo não configurada (EMAIL_PASSWORD).")
         
@@ -93,6 +107,7 @@ def send_contact_email(form: ContactForm):
     except Exception as e:
         print(f"Error sending email: {e}")
         raise HTTPException(status_code=500, detail="Erro ao enviar mensagem.")
+
 
 # Enable CORS for Frontend
 app.add_middleware(
