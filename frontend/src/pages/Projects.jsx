@@ -84,7 +84,7 @@ export default function Projects() {
         <div className="flex flex-col md:h-[92vh] space-y-4 animate-diagonal-zoom">
             {/* Header Card */}
             <div className="bg-gradient-to-r from-emerald-500 to-teal-600 dark:from-emerald-600 dark:to-teal-700 rounded-2xl p-6 text-white shadow-lg flex-shrink-0 transition-all">
-                <div className="flex items-start gap-4">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-4">
                     <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
                         <FolderKanban className="w-8 h-8 text-white" />
                     </div>
