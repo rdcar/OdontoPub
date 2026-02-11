@@ -137,7 +137,7 @@ export default function Network() {
             {/* Main Content - Two Panel Layout */}
             <div className="flex-1 flex flex-col md:flex-row gap-4 min-h-0">
                 {/* Left Panel - Professor Selection */}
-                <div className="md:w-1/3 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col transition-colors max-h-[40vh] md:max-h-none">
+                <div className="md:w-1/3 bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col transition-colors max-h-[50vh] md:max-h-none">
                     {/* Header */}
                     <div className="p-5 border-b border-slate-100 dark:border-slate-700 bg-gradient-to-br from-sky-50 to-white dark:from-slate-800 dark:to-slate-800">
                         <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 mb-4">
