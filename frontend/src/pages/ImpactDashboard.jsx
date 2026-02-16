@@ -271,14 +271,14 @@ export default function ImpactDashboard() {
                     </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 w-full sm:w-auto">
                         <label className="text-base font-bold text-slate-500">Ano:</label>
                         <select
                             name="ano"
                             value={filters.ano}
                             onChange={handleFilterChange}
-                            className="text-sm font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 focus:ring-2 focus:ring-sky-500 outline-none transition-all cursor-pointer text-slate-700 dark:text-slate-200 shadow-sm"
+                            className="text-sm font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 focus:ring-2 focus:ring-sky-500 outline-none transition-all cursor-pointer text-slate-700 dark:text-slate-200 shadow-sm w-full sm:w-auto"
                         >
                             <option value="">Todos os Anos</option>
                             {stats.available_years?.map(year => (
@@ -287,13 +287,13 @@ export default function ImpactDashboard() {
                         </select>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 w-full sm:w-auto">
                         <label className="text-sm font-bold text-slate-500">Área:</label>
                         <select
                             name="atuacao"
                             value={filters.atuacao}
                             onChange={handleFilterChange}
-                            className="text-sm font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 focus:ring-2 focus:ring-sky-500 outline-none transition-all cursor-pointer text-slate-700 dark:text-slate-200 shadow-sm min-w-[150px]"
+                            className="text-sm font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 focus:ring-2 focus:ring-sky-500 outline-none transition-all cursor-pointer text-slate-700 dark:text-slate-200 shadow-sm min-w-[150px] w-full sm:w-auto"
                         >
                             <option value="">Todas as Áreas</option>
                             {stats.available_areas?.map(area => (

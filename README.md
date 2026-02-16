@@ -1,6 +1,6 @@
 # 🦷 OdontoPub - UFRN
 
-O **OdontoPub** é um dashboard analítico e interativo desenvolvido em **React, Tailwind CSS, FastAPI e Python**, projetado para centralizar, monitorar e visualizar a produção acadêmica do corpo docente do Departamento de Odontologia da Universidade Federal do Rio Grande do Norte (UFRN).
+O **OdontoPub** é um dashboard analítico e interativo desenvolvido em **React, Tailwind CSS, FastAPI e Python**, projetado para centralizar, visualizar e monitorar o impacto (Qualis/CAPES) da produção acadêmica do corpo docente do Departamento de Odontologia da Universidade Federal do Rio Grande do Norte (UFRN).
 
 O projeto resolve o problema da **dispersão de informações**, oferecendo aos alunos e pesquisadores uma interface única para identificar linhas de pesquisa, encontrar orientadores, explorar redes de colaboração e acompanhar a evolução científica do departamento. Há também uma central de ferramentas úteis para a vida acadêmica, incluindo acesso à literatura, metodologia e estatística, normatização e gestão de referências.
 

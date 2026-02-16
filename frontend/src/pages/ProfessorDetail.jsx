@@ -141,8 +141,8 @@ export default function ProfessorDetail() {
                             acc[year] = (acc[year] || 0) + 1;
                             return acc;
                         }, {})).map(([year, count]) => ({ year, count })).sort((a, b) => a.year - b.year)}>
-                            <XAxis dataKey="year" fontSize={12} tickLine={false} axisLine={false} stroke="#94a3b8" />
-                            <YAxis fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} stroke="#94a3b8" />
+                            <XAxis dataKey="year" fontSize={12} tickLine={false} axisLine={false} stroke="#94a3b8" tick={{ fontSize: 10 }} />
+                            <YAxis fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} stroke="#94a3b8" tick={{ fontSize: 10 }} />
                             <Tooltip
                                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                 cursor={{ fill: 'var(--tw-prose-invert-lead)' }} // Simplified cursor color
@@ -174,7 +174,7 @@ function PublicationItem({ pub }) {
 
     return (
         <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4 transition-all hover:bg-slate-50 dark:hover:bg-slate-700/50">
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
                     <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">{pub.ano} • {pub.revista}</div>
                     <h3 className="font-semibold text-slate-900 dark:text-slate-100">{pub.titulo}</h3>

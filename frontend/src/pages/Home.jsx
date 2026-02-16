@@ -205,7 +205,7 @@ export default function Home() {
                                                 {pub.titulo}
                                             </h4>
                                             <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 mb-3">{pub.autores}</p>
-                                            <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-50 dark:border-slate-700">
+                                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-auto pt-3 border-t border-slate-50 dark:border-slate-700 gap-2">
                                                 <div className="flex gap-2 text-[10px]">
                                                     <a href={`https://pubmed.ncbi.nlm.nih.gov/${pub.pmid}/`} target="_blank" className="text-sky-600 dark:text-sky-400 font-bold hover:underline">PMID</a>
                                                     {pub.doi && pub.doi !== 'N/A' && (

@@ -49,6 +49,16 @@ export default function Resources() {
                             description="Literatura Latino-Americana e do Caribe em Ciências da Saúde."
                             link="https://lilacs.bvsalud.org/"
                         />
+                        <ResourceCard
+                            title="Sci-Hub"
+                            description="Um jeitinho pouco ortodoxo de conseguir artigos científicos."
+                            link="https://sci-hub.box/"
+                        />
+                        <ResourceCard
+                            title="SciDB"
+                            description="Um segundo jeitinho pouco ortodoxo de conseguir artigos científicos."
+                            link="https://scidb.cc/"
+                        />
                     </div>
                 </section>
 
