@@ -28,7 +28,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="OdontoPub API", version="2.0", lifespan=lifespan)
 
 # Import and include Admin Routes
-from backend.admin_routes import router as admin_router
+from .admin_routes import router as admin_router
 app.include_router(admin_router, prefix="/api/admin")
 
 # --- Models ---
